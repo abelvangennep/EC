@@ -42,11 +42,11 @@ class individual():
     def get_fitness(self):
         return self.network
 
-    def print_network(network):
-        for i in range(len(network)):
-            print('From node ',network[i].get_inn().get_type(), ' ' , network[i].get_inn().get_id(), ' to node ', network[i].get_out().get_id(), ' ', network[i].get_out().get_type(), ' weight: ', network[i].get_weight(), ' innov_id: ', network[i].get_innov_id())
+    def print_network(self):
+        for i in range(len(self.network)):
+            print('From node ',self.network[i].get_inn().get_type(), ' ' , self.network[i].get_inn().get_id(), ' to node ', self.network[i].get_out().get_id(), ' ', self.network[i].get_out().get_type(), ' weight: ', self.network[i].get_weight(), ' innov_id: ', self.network[i].get_innov_id())
 
-def initialize_network(self):
+def initialize_network():
     """ Initialize network with only 20 input nodes and 5 output nodes"""
     network = []
     for i in range(20):
@@ -54,3 +54,7 @@ def initialize_network(self):
             network.append(Connection_Gene(Node_Gene('Input',i+1),Node_Gene('Output',21+j), random.uniform(-5,5),20*j+i+1, True))
     return network
 
+
+net = initialize_network()
+ind = individual(net)
+ind.print_network()
