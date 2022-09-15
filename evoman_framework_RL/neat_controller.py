@@ -44,7 +44,7 @@ class player_controller(Controller):
         output = []
         for i in output_nodes:
             i.print_node()
-            output.append(get_nn_value(i, ind1))
+            output.append(get_nn_value(i, controller))
 
         #----------------
         # takes decisions about sprite actions

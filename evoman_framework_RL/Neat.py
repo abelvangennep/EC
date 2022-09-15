@@ -4,9 +4,20 @@ class Node_Gene():
     """ Saves node genes"""
     def __init__(self, type, id):
         self.type = type #Input, Hidden, Output
+        self.value = None
         self.id = id
     def get_type(self):
         return self.type
+        
+    def get_value(self):
+        return self.value
+
+    def set_value(self,value):
+        self.value = value
+
+    def print_node(self):
+        print('Type: ', self.type, ' ID: ', self.id, ' value: ', self.value)
+
     def get_id(self):
         return self.id
 
@@ -30,7 +41,7 @@ class Connection_Gene():
         return self.weight
 
 
-class individual():
+class Individual():
     def __init__(self, network):
         """ Initialize individual for the NEAT population"""
         self.network = network
@@ -40,7 +51,7 @@ class individual():
         return self.network
 
     def get_fitness(self):
-        return self.network
+        return self.fitness
 
     def print_network(self):
         for i in range(len(self.network)):
@@ -51,10 +62,10 @@ def initialize_network():
     network = []
     for i in range(20):
         for j in range(5):
-            network.append(Connection_Gene(Node_Gene('Input',i+1),Node_Gene('Output',21+j), random.uniform(-5,5),20*j+i+1, True))
+            network.append(Connection_Gene(Node_Gene('Input',i+1),Node_Gene('Output',21+j), random.uniform(-5,5),20*i+j+1, True))
     return network
 
 
 net = initialize_network()
-ind = individual(net)
+ind = Individual(net)
 ind.print_network()

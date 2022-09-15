@@ -12,7 +12,8 @@ import sys
 
 sys.path.insert(0, 'evoman')
 from environment import Environment
-from demo_controller import player_controller
+from neat_controller import player_controller
+# from demo_controller import player_controller
 from Neat import Node_Gene, Connection_Gene, initialize_network, Individual
 # imports other libs
 import numpy as np
@@ -38,10 +39,10 @@ env = Environment(experiment_name=experiment_name,
 for en in range(1, 2):
     # Update the enemy
     env.update_parameter('enemies', [en])
-    #net = initialize_network()
-    #sol = Individual(net)
+    net = initialize_network()
+    sol = Individual(net)
     # Load specialist controller
-    sol = np.loadtxt('solutions_demo/demo_' + str(en) + '.txt')
-    print('\n LOADING SAVED SPECIALIST SOLUTION FOR ENEMY ' + str(en) + ' \n')
+    # sol = np.loadtxt('solutions_demo/demo_' + str(en) + '.txt')
+    # print('\n LOADING SAVED SPECIALIST SOLUTION FOR ENEMY ' + str(en) + ' \n')
     vfitness, vplayerlife, venemylife, vtime = env.play(sol)
 print('My fitnes: ', vfitness)
