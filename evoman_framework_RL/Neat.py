@@ -30,22 +30,27 @@ class Connection_Gene():
         return self.weight
 
 
-def initialize_network():
+class individual():
+    def __init__(self, network):
+        """ Initialize individual for the NEAT population"""
+        self.network = network
+        self.fitness = None
+
+    def get_network(self):
+        return self.network
+
+    def get_fitness(self):
+        return self.network
+
+    def print_network(network):
+        for i in range(len(network)):
+            print('From node ',network[i].get_inn().get_type(), ' ' , network[i].get_inn().get_id(), ' to node ', network[i].get_out().get_id(), ' ', network[i].get_out().get_type(), ' weight: ', network[i].get_weight(), ' innov_id: ', network[i].get_innov_id())
+
+def initialize_network(self):
     """ Initialize network with only 20 input nodes and 5 output nodes"""
     network = []
     for i in range(20):
         for j in range(5):
             network.append(Connection_Gene(Node_Gene('Input',i+1),Node_Gene('Output',21+j), random.uniform(-5,5),20*j+i+1, True))
     return network
-#def mutate_network():
 
-def print_network(network):
-    for i in range(len(network)):
-        print('From node ',network[i].get_inn().get_type(), ' ' , network[i].get_inn().get_id(), ' to node ', network[i].get_out().get_id(), ' ', network[i].get_out().get_type(), ' weight: ', network[i].get_weight(), ' innov_id: ', network[i].get_innov_id())
-
-test_net = initialize_network()
-print_network(test_net)
-
-
-
-#def calc_dist():
