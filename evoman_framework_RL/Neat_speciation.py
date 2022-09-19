@@ -65,6 +65,6 @@ def speciation(population):
     return species
 
 
-print(speciation(population))
+#print(speciation(population))
 
 
