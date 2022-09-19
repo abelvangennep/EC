@@ -50,15 +50,15 @@ def distance(parent1, parent2):
 
 def speciation(population):
     species = [[population[0]]]
-    compatibility_threshold = 1.5
+    compatibility_threshold = 1
     for individual in population[1:]:
         for specie in species:
-            print(individual, specie[0])
+            #print(individual, specie[0])
             check_distance = distance(individual, specie[0])
             if check_distance <= compatibility_threshold:
                 specie.append(individual)
             else:
-                species.append(individual)
+                species.append([individual])
     return species
 
 
