@@ -42,7 +42,7 @@ def distance(parent1, parent2):
 
     c1 = 1
     c2 = 1
-    c3 = 1
+    c3 = 0.4
     # compatibility_threshold = 1
 
     distance = abs((c1 * len(excess_genes))/N + (c2 * len(disjoint_genes))/N + c3*W)
