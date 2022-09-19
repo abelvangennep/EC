@@ -28,7 +28,7 @@ class player_controller(Controller):
         self.n_hidden = [_n_hidden]
 
     def control(self, inputs, controller):
-        print(str)
+        #print(str)
         # Normalises the input using min-max scaling
         inputs = (inputs - min(inputs)) / float((max(inputs) - min(inputs)))
         #----------------
@@ -43,7 +43,7 @@ class player_controller(Controller):
 
         output = []
         for i in output_nodes:
-            i.print_node()
+            #i.print_node()
             output.append(get_nn_value(i, controller))
 
         #----------------

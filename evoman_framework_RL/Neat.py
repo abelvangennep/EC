@@ -53,6 +53,9 @@ class Individual():
     def get_fitness(self):
         return self.fitness
 
+    def set_fitness(self, fitness):
+        self.fitness = fitness
+
     def print_network(self):
         for i in range(len(self.network)):
             print('From node ',self.network[i].get_inn().get_type(), ' ' , self.network[i].get_inn().get_id(), ' to node ', self.network[i].get_out().get_id(), ' ', self.network[i].get_out().get_type(), ' weight: ', self.network[i].get_weight(), ' innov_id: ', self.network[i].get_innov_id())
@@ -65,7 +68,3 @@ def initialize_network():
             network.append(Connection_Gene(Node_Gene('Input',i+1),Node_Gene('Output',21+j), random.uniform(-5,5),20*i+j+1, True))
     return network
 
-
-net = initialize_network()
-ind = Individual(net)
-ind.print_network()
