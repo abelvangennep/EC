@@ -1,3 +1,4 @@
+from pickle import TRUE
 import random
 
 class Node_Gene():
@@ -33,6 +34,10 @@ class Connection_Gene():
 
     def get_inn(self):
         return self.inn
+        
+    def disable(self):
+        self.enabled = False
+        return True
     def get_out(self):
         return self.out
     def get_innov_id(self):
@@ -45,6 +50,7 @@ class Individual():
     def __init__(self, network):
         """ Initialize individual for the NEAT population"""
         self.network = network
+        self.highest_innov = 0
         self.fitness = None
 
     def get_network(self):
@@ -55,7 +61,13 @@ class Individual():
 
     def set_fitness(self, fitness):
         self.fitness = fitness
-
+    
+    def add_connection(self, in_node, out_node, weight, id, highest_innov_id, id_node):
+        hidden_node = Node_Gene("Hidden", id_node)
+        self.network.append(Connection_Gene(in_node, hidden_node, weight, highest_innov_id, True))
+        self.network.append(Connection_Gene(hidden_node, out_node, 1, highest_innov_id, True))
+        return True
+        
     def print_network(self):
         for i in range(len(self.network)):
             print('From node ',self.network[i].get_inn().get_type(), ' ' , self.network[i].get_inn().get_id(), ' to node ', self.network[i].get_out().get_id(), ' ', self.network[i].get_out().get_type(), ' weight: ', self.network[i].get_weight(), ' innov_id: ', self.network[i].get_innov_id())
@@ -68,3 +80,10 @@ def initialize_network():
             network.append(Connection_Gene(Node_Gene('Input',i+1),Node_Gene('Output',21+j), random.uniform(-5,5),20*i+j+1, True))
     return network
 
+net1 = initialize_network()
+net2 = initialize_network()
+net3 = initialize_network()
+net4 = initialize_network()
+net5 = initialize_network()
+
+population = [Individual(net1), Individual(net2), Individual(net3), Individual(net4), Individual(net5)]
