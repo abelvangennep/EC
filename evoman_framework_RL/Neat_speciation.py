@@ -42,26 +42,29 @@ def distance(parent1, parent2):
 
     c1 = 1
     c2 = 1
-    c3 = 1
+    c3 = 0.4
     # compatibility_threshold = 1
 
-    distance = (c1 * len(excess_genes))/N + (c2 * len(disjoint_genes))/N + c3*W
+    distance = abs((c1 * len(excess_genes))/N + (c2 * len(disjoint_genes))/N + c3*W)
     return distance
 
 def speciation(population):
     species = [[population[0]]]
-    compatibility_threshold = 1.5
+    compatibility_threshold = 3
     for individual in population[1:]:
+        tracker = 0
         for specie in species:
-            print(individual, specie[0])
+            #print(individual, specie[0])
             check_distance = distance(individual, specie[0])
             if check_distance <= compatibility_threshold:
                 specie.append(individual)
-            else:
-                species.append(individual)
+                tracker += 1
+                break
+        if tracker == 0:
+            species.append([individual])
     return species
 
 
-print(speciation(population))
+#print(speciation(population))
 
 

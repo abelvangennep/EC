@@ -27,9 +27,9 @@ def crossover(parent_1, parent_2):
     inferior_network = inferior_parent.get_network()
     counter  = 0
     while((len(superior_network) + len(inferior_network))-1 > counter):
-        print(len(superior_network))
-        print(superior_id_tracker)
-        print(counter)
+        #print(len(superior_network))
+        #print(superior_id_tracker)
+        #print(counter)
         if superior_network[superior_id_tracker].innov_id == inferior_network[inferior_id_tracker].innov_id:
             if superior_network[superior_id_tracker].enabled and inferior_network[inferior_id_tracker].enabled:
                 child.append(Connection_Gene(superior_network[superior_id_tracker].inn, superior_network[superior_id_tracker].out, superior_network[superior_id_tracker].weight, superior_network[superior_id_tracker].innov_id, True))
