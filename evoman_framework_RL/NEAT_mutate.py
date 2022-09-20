@@ -1,6 +1,6 @@
 import random
 
-def mutate(individual, weight_mutation_prob, link_insertion_prob, node_insertion_prob, id_node, highest_innov_id):
+def mutate(individual, id_node, highest_innov_id, weight_mutation_prob=0.9, link_insertion_prob=.05, node_insertion_prob=.05):
     if random.uniform(0, 1) < weight_mutation_prob:
         individual = adjust_weight(individual)
 
