@@ -62,7 +62,7 @@ class Individual():
     def set_fitness(self, fitness):
         self.fitness = fitness
     
-    def add_connection(self, in_node, out_node, weight, id, highest_innov_id, id_node):
+    def add_connection(self, in_node, out_node, weight, id_node, highest_innov_id):
         hidden_node = Node_Gene("Hidden", id_node)
         self.network.append(Connection_Gene(in_node, hidden_node, weight, highest_innov_id, True))
         self.network.append(Connection_Gene(hidden_node, out_node, 1, highest_innov_id, True))
