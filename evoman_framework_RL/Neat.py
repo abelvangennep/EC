@@ -1,5 +1,6 @@
 from pickle import TRUE
 import random
+import math
 
 class Node_Gene():
     """ Saves node genes"""
@@ -72,7 +73,7 @@ class Individual():
     def add_connection(self, in_node, out_node, weight, id_node, highest_innov_id):
         hidden_node = Node_Gene("Hidden", id_node)
         self.network.append(Connection_Gene(in_node, hidden_node, weight, highest_innov_id, True))
-        self.network.append(Connection_Gene(hidden_node, out_node, 1, highest_innov_id, True))
+        self.network.append(Connection_Gene(hidden_node, out_node, 1, highest_innov_id+1, True))
         return True
         
     def print_network(self):
@@ -84,9 +85,11 @@ def initialize_network():
     network = []
     for i in range(5):
         for j in range(20):
-            network.append(Connection_Gene(Node_Gene('Input',j+1),Node_Gene('Output',21+i), random.uniform(-1,1),20*i+j+1, True))
+            network.append(Connection_Gene(Node_Gene('Input',j+1),Node_Gene('Output',21+i), random.uniform(-5,5),20*i+j+1, True))
     return network
 
+def calc_fitness_value(plife, elife,runtime):
+    return 0.9*(100-elife)+0.1*plife-math.log(runtime)
 #net1 = initialize_network()
 #net2 = initialize_network()
 #net3 = initialize_network()

@@ -15,10 +15,10 @@ def mutate(individual, id_node, highest_innov_id, weight_mutation_prob=0.9, link
     if random.uniform(0, 1) < node_insertion_prob:
         individual = add_node(individual, id_node, highest_innov_id)
         id_node +=1
-        highest_innov_id += 1
+        highest_innov_id += 2
         mut_string = mut_string + 3
 
-    return id_node, highest_innov_id, mut_string
+    return individual, id_node, highest_innov_id, mut_string
 
 def adjust_weight(individual):
     network = individual.get_network()
@@ -50,7 +50,7 @@ def link_insertion(individual, id_node, highest_innov_id):
     if hidden_nodes:
         selected_node = random.choice(hidden_nodes)
         all_nodes.remove(selected_node)
-        connected_node = random.choice(all_nodes)
+        connected_node = random.sample(all_nodes, 1)
         weight = random.uniform(-1,1)
         if connected_node.type == "Input":
             individual.add_connection(connected_node, selected_node, weight, id_node, highest_innov_id)

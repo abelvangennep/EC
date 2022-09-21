@@ -72,7 +72,7 @@ class player_controller(Controller):
             release = 1
         else:
             release = 0
-
+        print('Actions: ', [left, right, jump, shoot, release])
         return [left, right, jump, shoot, release]
 
 

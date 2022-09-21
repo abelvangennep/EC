@@ -25,46 +25,71 @@ def crossover(parent_1, parent_2):
     inferior_id_tracker = 0
     superior_network = superior_parent.get_network()
     inferior_network = inferior_parent.get_network()
-    counter  = 0
-    while((len(superior_network) + len(inferior_network))-1 > counter):
-        try:
-            if superior_network[superior_id_tracker].innov_id == inferior_network[inferior_id_tracker].innov_id:
-                if superior_network[superior_id_tracker].enabled and inferior_network[inferior_id_tracker].enabled:
-                    child.append(Connection_Gene(superior_network[superior_id_tracker].inn, superior_network[superior_id_tracker].out, superior_network[superior_id_tracker].weight, superior_network[superior_id_tracker].innov_id, True))
-                else:
-                    child.append(Connection_Gene(superior_network[superior_id_tracker].inn, superior_network[superior_id_tracker].out, superior_network[superior_id_tracker].weight, superior_network[superior_id_tracker].innov_id, False))
+    counter = 0
 
-                inferior_id_tracker += 1
-                superior_id_tracker += 1
-                counter += 2
+    superior_end = False
+    inferior_end = False
 
-            elif superior_network[superior_id_tracker].innov_id > inferior_network[inferior_id_tracker].innov_id:
-                child.append(Connection_Gene(inferior_network[superior_id_tracker].inn,
-                                             inferior_network[superior_id_tracker].out,
-                                             inferior_network[superior_id_tracker].weight,
-                                             inferior_network[superior_id_tracker].innov_id,
-                                             inferior_network[superior_id_tracker].enabled))
-                inferior_id_tracker += 1
-                counter += 1
-
-            elif superior_network[superior_id_tracker].innov_id < inferior_network[inferior_id_tracker].innov_id:
-                child.append(Connection_Gene(superior_network[superior_id_tracker].inn, superior_network[superior_id_tracker].out,
-                                    superior_network[superior_id_tracker].weight,
-                                    superior_network[superior_id_tracker].innov_id,
-                                    superior_network[superior_id_tracker].enabled))
-                superior_id_tracker += 1
-                counter += 1
-
-            else:
-                print("if we get here something is going wrong in NEAT crossover")
+    while((inferior_end == False) or (superior_end == False)):
+        if superior_end:
+            if inferior_end:
                 break
-        except:
-            print('superior_tracker: ', superior_id_tracker, 'inferior_tracker: ', inferior_id_tracker, 'counter: ', counter)
+            else:
+                child.append(Connection_Gene(inferior_network[inferior_id_tracker].inn,
+                                             inferior_network[inferior_id_tracker].out,
+                                             inferior_network[inferior_id_tracker].weight,
+                                             inferior_network[inferior_id_tracker].innov_id,
+                                             inferior_network[inferior_id_tracker].enabled))
+                inferior_id_tracker += 1
+                counter += 1
+        elif inferior_end:
+            child.append(Connection_Gene(superior_network[superior_id_tracker].inn, superior_network[superior_id_tracker].out,
+                                superior_network[superior_id_tracker].weight,
+                                superior_network[superior_id_tracker].innov_id,
+                                superior_network[superior_id_tracker].enabled))
+            superior_id_tracker += 1
+            counter += 1
 
-            print('superior parent length: ', len(superior_network))
-            superior_parent.print_network()
-            print('inferior parent length: ', len(inferior_network))
-            inferior_parent.print_network()
+        elif (superior_network[superior_id_tracker].innov_id > inferior_network[inferior_id_tracker].innov_id):
+            child.append(Connection_Gene(inferior_network[inferior_id_tracker].inn,
+                                         inferior_network[inferior_id_tracker].out,
+                                         inferior_network[inferior_id_tracker].weight,
+                                         inferior_network[inferior_id_tracker].innov_id,
+                                         inferior_network[inferior_id_tracker].enabled))
+            inferior_id_tracker += 1
+            counter += 1
+
+        elif (superior_network[superior_id_tracker].innov_id < inferior_network[inferior_id_tracker].innov_id):
+            child.append(Connection_Gene(superior_network[superior_id_tracker].inn, superior_network[superior_id_tracker].out,
+                                superior_network[superior_id_tracker].weight,
+                                superior_network[superior_id_tracker].innov_id,
+                                superior_network[superior_id_tracker].enabled))
+            superior_id_tracker += 1
+            counter += 1
+        elif superior_network[superior_id_tracker].innov_id == inferior_network[inferior_id_tracker].innov_id:
+            if superior_network[superior_id_tracker].enabled and inferior_network[inferior_id_tracker].enabled:
+                child.append(Connection_Gene(superior_network[superior_id_tracker].inn, superior_network[superior_id_tracker].out, superior_network[superior_id_tracker].weight, superior_network[superior_id_tracker].innov_id, True))
+            else:
+                child.append(Connection_Gene(superior_network[superior_id_tracker].inn, superior_network[superior_id_tracker].out, superior_network[superior_id_tracker].weight, superior_network[superior_id_tracker].innov_id, False))
+            inferior_id_tracker += 1
+            superior_id_tracker += 1
+            counter += 2
+
+        else:
+            print("if we get here something is going wrong in NEAT crossover")
+            break
+
+        if superior_id_tracker >= len(superior_network):
+            superior_end = True
+        if inferior_id_tracker >= len(inferior_network):
+            inferior_end = True
+
+            #print('superior_tracker: ', superior_id_tracker, 'inferior_tracker: ', inferior_id_tracker, 'counter: ', counter)
+
+            #print('superior parent length: ', len(superior_network))
+            #superior_parent.print_network()
+            #print('inferior parent length: ', len(inferior_network))
+            #inferior_parent.print_network()
 
     return Individual(child)
 

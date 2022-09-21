@@ -16,7 +16,7 @@ sys.path.insert(0, 'evoman')
 from environment import Environment
 from neat_controller import player_controller
 # from demo_controller import player_controller
-from Neat import Node_Gene, Connection_Gene, initialize_network, Individual
+from Neat import Node_Gene, Connection_Gene, initialize_network, Individual, calc_fitness_value
 from neat_sel import parent_selection
 from Neat_speciation import speciation, calc_avg_dist
 from NEAT_crossover import crossover
@@ -48,9 +48,15 @@ env = Environment(experiment_name=experiment_name,
 
 
 # tests saved demo solutions for each enemy
-#for i in range(10):
-number_generations = 10
+#Parameters
+number_generations = 3
 population_size = 10
+mutation_prob =0
+compat_threshold =0
+link_insert_prob =0
+node_insert_prob =0
+
+#Run configuration of parameters 3 times
 for en in range(1, 2):
     results = np.zeros(((number_generations+1)*population_size, 9)) #Generation, Individual, Parents, Species, Fitness, time, avg.gen fitness, avg.gen dist
     overview = np.zeros((number_generations,2))
@@ -69,9 +75,9 @@ for en in range(1, 2):
             print('Evaluating individual ', pcont.get_id())
             start_ind = time.time()
             vfitness, vplayerlife, venemylife, vtime = env.play(pcont)
-            pcont.set_fitness(vfitness+100) # no negative fitness values
-            fitnesses.append(vfitness)
-            print('Fitness value: ', vfitness, ' time elapsed: ', time.time()-start_ind)
+            pcont.set_fitness(calc_fitness_value(vplayerlife, venemylife, vtime)+100) # no negative fitness values
+            fitnesses.append(calc_fitness_value(vplayerlife, venemylife, vtime))
+            print('Fitness value: ', calc_fitness_value(vplayerlife, venemylife, vtime), ' time elapsed: ', time.time()-start_ind)
             results[gen*population_size+pcont.get_id(),0] = gen
             results[gen * population_size + pcont.get_id(), 1] = pcont.get_id()
             results[gen * population_size + pcont.get_id(), 5] = vfitness
@@ -97,7 +103,7 @@ for en in range(1, 2):
             results[(gen+1)*population_size+temp,2] = gen*100+min(pair[0].get_id(),pair[1].get_id())*10+max(pair[0].get_id(),pair[1].get_id())
             temp += 1
         for m in range(len(children)):
-            id_node, highest_innov_id, string = mutate(children[m], id_node, highest_innov_id)
+            children[m], id_node, highest_innov_id, string = mutate(children[m], id_node, highest_innov_id)
             children[m].set_id(m)
             results[(gen + 1) * population_size + m, 4] = string
 
