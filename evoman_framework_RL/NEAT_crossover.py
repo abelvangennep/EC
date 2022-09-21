@@ -26,7 +26,7 @@ def crossover(parent_1, parent_2):
     superior_network = superior_parent.get_network()
     inferior_network = inferior_parent.get_network()
     counter  = 0
-    while((len(superior_network) + len(inferior_network))-1 > counter):
+    while((len(superior_network) + len(inferior_network))-2 > counter):
         #print(len(superior_network))
         #print(superior_id_tracker)
         #print(counter)

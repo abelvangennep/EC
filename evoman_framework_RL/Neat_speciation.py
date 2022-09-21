@@ -1,4 +1,6 @@
 from Neat import *
+import time
+import numpy as np
 
 def distance(parent1, parent2):
     parent1_net = parent1.get_network()
@@ -50,7 +52,7 @@ def distance(parent1, parent2):
 
 def speciation(population):
     species = [[population[0]]]
-    compatibility_threshold = 3
+    compatibility_threshold = 12
     for individual in population[1:]:
         tracker = 0
         for specie in species:
@@ -64,7 +66,14 @@ def speciation(population):
             species.append([individual])
     return species
 
-
-#print(speciation(population))
+def calc_avg_dist(pop):
+    dist_matrix = np.zeros((len(pop),len(pop)))
+    distances = []
+    for i in range(len(pop)):
+        for j in range(i+1,len(pop)):
+            dist_matrix[i,j] = distance(pop[i],pop[j])
+            distances.append(dist_matrix[i,j])
+    return sum(distances)/len(distances)
+    #print(speciation(population))
 
 

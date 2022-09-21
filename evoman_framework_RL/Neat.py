@@ -47,14 +47,21 @@ class Connection_Gene():
 
 
 class Individual():
-    def __init__(self, network):
+    def __init__(self, network, id = None):
         """ Initialize individual for the NEAT population"""
         self.network = network
         self.highest_innov = 0
         self.fitness = None
+        self.id = id
 
     def get_network(self):
         return self.network
+
+    def get_id(self):
+        return self.id
+
+    def set_id(self, id):
+        self.id = id
 
     def get_fitness(self):
         return self.fitness

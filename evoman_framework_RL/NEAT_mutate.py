@@ -27,21 +27,21 @@ def add_node(individual, id_node, highest_innov_id):
     network = individual.get_network()
     single_connection = random.choice(network)
     single_connection.disable()
-    individual.add_connection(single_connection.in_node, single_connection.out_node, single_connection.weight, id_node, highest_innov_id)
+    individual.add_connection(single_connection.inn, single_connection.out, single_connection.weight, id_node, highest_innov_id)
     
     return individual
 
 def link_insertion(individual, id_node, highest_innov_id):
     hidden_nodes = []
-    all_nodes = {}
+    all_nodes = set()
     for connection in individual.get_network():
-        if connection.in_node.type == "Hidden":
-            hidden_nodes.append(connection.in_node)
+        if connection.inn.type == "Hidden":
+            hidden_nodes.append(connection.inn)
 
-        if not connection.in_node == "Hidden":
-            all_nodes.add(connection.in_node)
-        if not connection.out_node == "Hidden": 
-            all_nodes.add(connection.out_node)
+        if not connection.inn == "Hidden":
+            all_nodes.add(connection.inn)
+        if not connection.out == "Hidden":
+            all_nodes.add(connection.out)
 
     if hidden_nodes:
         selected_node = random.choice(hidden_nodes)
