@@ -17,7 +17,7 @@ from environment import Environment
 from neat_controller import player_controller
 # from demo_controller import player_controller
 from Neat import Node_Gene, Connection_Gene, initialize_network, Individual
-from neat_selection import parent_selection
+from neat_sel import parent_selection
 from Neat_speciation import speciation, calc_avg_dist
 from NEAT_crossover import crossover
 from NEAT_mutate import mutate
@@ -49,17 +49,17 @@ env = Environment(experiment_name=experiment_name,
 
 # tests saved demo solutions for each enemy
 #for i in range(10):
-number_generations = 3
+number_generations = 10
 population_size = 10
 for en in range(1, 2):
-    results = np.zeros(((number_generations+1)*population_size, 8)) #Generation, Individual, Parents, Species, Fitness, time, avg.gen fitness, avg.gen dist
+    results = np.zeros(((number_generations+1)*population_size, 9)) #Generation, Individual, Parents, Species, Fitness, time, avg.gen fitness, avg.gen dist
     overview = np.zeros((number_generations,2))
     # Update the enemy
     env.update_parameter('enemies', [en])
     #start with population, create 10 random individuals (1 for training now)
     pop = [Individual(initialize_network(), i) for i in range(population_size)]
-    highest_innov_id = 100
-    id_node = 25
+    highest_innov_id = 101
+    id_node = 26
     gen = 0
     for i in range(number_generations): #number of generations
         start_gen = time.time()
@@ -74,13 +74,13 @@ for en in range(1, 2):
             print('Fitness value: ', vfitness, ' time elapsed: ', time.time()-start_ind)
             results[gen*population_size+pcont.get_id(),0] = gen
             results[gen * population_size + pcont.get_id(), 1] = pcont.get_id()
-            results[gen * population_size + pcont.get_id(), 4] = vfitness
-            results[gen * population_size + pcont.get_id(), 5] = time.time()-start_ind
+            results[gen * population_size + pcont.get_id(), 5] = vfitness
+            results[gen * population_size + pcont.get_id(), 6] = time.time()-start_ind
 
         overview[gen,0] = sum(fitnesses)/len(fitnesses)
         overview[gen,1] = calc_avg_dist(pop)
-        results[gen*population_size,6] = sum(fitnesses)/len(fitnesses)
-        results[gen * population_size, 7] = calc_avg_dist(pop)
+        results[gen*population_size,7] = sum(fitnesses)/len(fitnesses)
+        results[gen * population_size, 8] = calc_avg_dist(pop)
 
         species = speciation(pop) #The speciation function takes whole population as list of individuals and returns # a list of lists with individuals [[1,2], [4,5,8], [3,6,9,10], [7]] for example with 10 individuals
         #add species information to individual
@@ -97,15 +97,16 @@ for en in range(1, 2):
             results[(gen+1)*population_size+temp,2] = gen*100+min(pair[0].get_id(),pair[1].get_id())*10+max(pair[0].get_id(),pair[1].get_id())
             temp += 1
         for m in range(len(children)):
-            id_node, highest_innov_id = mutate(children[m], id_node, highest_innov_id)
+            id_node, highest_innov_id, string = mutate(children[m], id_node, highest_innov_id)
             children[m].set_id(m)
+            results[(gen + 1) * population_size + m, 4] = string
 
         #evaluate/run for whole new generation and assign fitness value
         pop = children
         print('Generation ', gen, ' took ', time.time()-start_gen, ' seconds to elapse. Highest fitness value was ', max(fitnesses) )
         gen+=1
         #repeat loop
-    results_df = pd.DataFrame(results, columns = ['Generation', 'Individual', 'Parents', 'Species', 'Fitness', 'Time elapsed', 'Avg. fitness', 'Avg. distance'])
+    results_df = pd.DataFrame(results, columns = ['Generation', 'Individual', 'Parents', 'Species', 'Mutation', 'Fitness', 'Time elapsed', 'Avg. fitness', 'Avg. distance'])
     results_df.to_csv('test1.csv')
     print(results_df)
     #Evaluate

@@ -82,15 +82,15 @@ class Individual():
 def initialize_network():
     """ Initialize network with only 20 input nodes and 5 output nodes"""
     network = []
-    for i in range(20):
-        for j in range(5):
-            network.append(Connection_Gene(Node_Gene('Input',i+1),Node_Gene('Output',21+j), random.uniform(-5,5),20*i+j+1, True))
+    for i in range(5):
+        for j in range(20):
+            network.append(Connection_Gene(Node_Gene('Input',j+1),Node_Gene('Output',21+i), random.uniform(-1,1),20*i+j+1, True))
     return network
 
-net1 = initialize_network()
-net2 = initialize_network()
-net3 = initialize_network()
-net4 = initialize_network()
-net5 = initialize_network()
+#net1 = initialize_network()
+#net2 = initialize_network()
+#net3 = initialize_network()
+#net4 = initialize_network()
+#net5 = initialize_network()
 
-population = [Individual(net1), Individual(net2), Individual(net3), Individual(net4), Individual(net5)]
+#population = [Individual(net1), Individual(net2), Individual(net3), Individual(net4), Individual(net5)]

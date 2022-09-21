@@ -52,7 +52,7 @@ def distance(parent1, parent2):
 
 def speciation(population):
     species = [[population[0]]]
-    compatibility_threshold = 12
+    compatibility_threshold = 3
     for individual in population[1:]:
         tracker = 0
         for specie in species:

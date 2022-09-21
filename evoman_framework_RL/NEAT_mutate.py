@@ -1,20 +1,24 @@
 import random
 
 def mutate(individual, id_node, highest_innov_id, weight_mutation_prob=0.9, link_insertion_prob=.05, node_insertion_prob=.05):
+    mut_string = 0
     if random.uniform(0, 1) < weight_mutation_prob:
         individual = adjust_weight(individual)
+        mut_string = mut_string+100
 
     if random.uniform(0, 1) < link_insertion_prob:
         individual =  link_insertion(individual, id_node, highest_innov_id)
         id_node +=1
         highest_innov_id += 1
+        mut_string = mut_string + 20
 
     if random.uniform(0, 1) < node_insertion_prob:
         individual = add_node(individual, id_node, highest_innov_id)
         id_node +=1
         highest_innov_id += 1
+        mut_string = mut_string + 3
 
-    return id_node, highest_innov_id
+    return id_node, highest_innov_id, mut_string
 
 def adjust_weight(individual):
     network = individual.get_network()
