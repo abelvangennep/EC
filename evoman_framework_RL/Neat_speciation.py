@@ -50,9 +50,8 @@ def distance(parent1, parent2):
     distance = abs((c1 * len(excess_genes))/N + (c2 * len(disjoint_genes))/N + c3*W)
     return distance
 
-def speciation(population):
+def speciation(population, compatibility_threshold=2):
     species = [[population[0]]]
-    compatibility_threshold = 2
     for individual in population[1:]:
         tracker = 0
         for specie in species:
