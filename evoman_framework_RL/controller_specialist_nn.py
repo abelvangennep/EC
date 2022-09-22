@@ -18,7 +18,7 @@ from neat_controller import player_controller
 # from demo_controller import player_controller
 from Neat import Node_Gene, Connection_Gene, initialize_network, Individual, calc_fitness_value
 from neat_selection import parent_selection
-from Neat_speciation import speciation, calc_avg_dist
+from Neat_speciation import speciation, calc_avg_dist, Species
 from NEAT_crossover import crossover
 from NEAT_mutate import mutate
 # imports other libs
@@ -56,10 +56,10 @@ env = Environment(experiment_name=experiment_name,
 # compat_threshold =0
 # link_insert_prob =0
 # node_insert_prob =0
-
+highest_species_id = 0
 
 def run_neat(number_generations = 3, population_size = 10,compat_threshold = 2,
-            weight_mutation_lambda = 3, link_insertion_prob=.05, node_insertion_prob=.05, enemy=[1]):
+            weight_mutation_lambda = 3, link_insertion_prob=.05, node_insertion_prob=.05, enemy=[2]):
     for en in enemy:
         results = np.zeros(((number_generations+1)*population_size, 9)) #Generation, Individual, Parents, Species, Fitness, time, avg.gen fitness, avg.gen dist
         overview = np.zeros((number_generations,2))
@@ -67,6 +67,8 @@ def run_neat(number_generations = 3, population_size = 10,compat_threshold = 2,
         env.update_parameter('enemies', [en])
         #start with population, create 10 random individuals (1 for training now)
         pop = [Individual(initialize_network(), i) for i in range(population_size)]
+        species = [Species(pop[0], 1)]
+        highest_species_id = 1
         highest_innov_id = 101
         id_node = 26
   
@@ -91,13 +93,15 @@ def run_neat(number_generations = 3, population_size = 10,compat_threshold = 2,
             results[gen*population_size,7] = sum(fitnesses)/len(fitnesses)
             results[gen * population_size, 8] = calc_avg_dist(pop)
 
-            species = speciation(pop,compat_threshold) #The speciation function takes whole population as list of individuals and returns # a list of lists with individuals [[1,2], [4,5,8], [3,6,9,10], [7]] for example with 10 individuals
+
+            pop_grouped, species, highest_species_id = speciation(pop, species, highest_species_id, compat_threshold)#The speciation function takes whole population as list of individuals and returns # a list of lists with individuals [[1,2], [4,5,8], [3,6,9,10], [7]] for example with 10 individuals
+            print(species)
             #add species information to individual
-            for m in range(len(species)):
-                for j in range(len(species[m])):
-                    results[gen*population_size+species[m][j].get_id(),3] = m
-            print('There were ', len(species), ' different species identified in generation ', gen)
-            parents = parent_selection(species) #This function returns pairs of parents which will be mated. In total the number of pairs equal to the number of offsprings we want to generate
+            for m in range(len(pop_grouped)):
+                for j in range(len(pop_grouped[m])):
+                    results[gen*population_size+pop_grouped[m][j].get_id(), 3] = pop_grouped[m][j].get_species()
+            print('There are ', len(species), ' different species now in total')
+            parents = parent_selection(pop_grouped) #This function returns pairs of parents which will be mated. In total the number of pairs equal to the number of offsprings we want to generate
             children = []
  
             for temp, pair in enumerate(parents):
@@ -120,7 +124,7 @@ def run_neat(number_generations = 3, population_size = 10,compat_threshold = 2,
         print(results_df)
 
 
-# run_neat(number_generations = 15, population_size = 60, compat_threshold = 5)
+run_neat(number_generations = 4, population_size = 20, compat_threshold = 6)
 
 
 def neat_optimizer(list_):
@@ -170,7 +174,7 @@ def neat_optimizer(list_):
 
 def neat_iterations(parameters):
     num_iterations = 1
-    number_generations = 10
+    number_generations = 2
     population_size = int(parameters['population_size'])
     weight_mutation_lambda = parameters['weight_mutation_lambda']
     compat_threshold = parameters['compat_threshold']
@@ -209,14 +213,14 @@ def neat_iterations_parallel(parameters):
     with concurrent.futures.ProcessPoolExecutor() as executor:
         results = executor.map(neat_optimizer,[[number_generations, population_size, weight_mutation_lambda, compat_threshold,
                            link_insertion_lambda, node_insertion_lambda, enemy] for _ in range(num_iterations)])
-    for result in results:
-        print(result)
+    
 
-    return {'loss': 0,
+    return {'loss': -np.mean(results),
             'status': STATUS_OK,
             # -- store other results like this
             'eval_time': time.time(),
-            'loss_variance': 0}
+            'loss_variance': np.var(results)}
+
 if __name__ == '__main__':
 
     space = hp.choice('Type_of_model',[{
