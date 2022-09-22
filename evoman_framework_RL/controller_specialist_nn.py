@@ -181,7 +181,7 @@ def neat_iterations(parameters):
     compat_threshold = parameters['compat_threshold']
     link_insertion_lambda = parameters['link_insertion_lambda']
     node_insertion_lambda = parameters['node_insertion_lambda']
-    enemy=[2]
+    enemy=[4]
 
     print(parameters)
     
@@ -206,7 +206,7 @@ def neat_iterations_parallel(parameters):
     compat_threshold = parameters['compat_threshold']
     link_insertion_lambda = parameters['link_insertion_lambda']
     node_insertion_lambda = parameters['node_insertion_lambda']
-    enemy = [1]
+    enemy = [4]
 
     print(parameters)
 
@@ -214,13 +214,14 @@ def neat_iterations_parallel(parameters):
     with concurrent.futures.ProcessPoolExecutor() as executor:
         results = executor.map(neat_optimizer,[[number_generations, population_size, weight_mutation_lambda, compat_threshold,
                            link_insertion_lambda, node_insertion_lambda, enemy] for _ in range(num_iterations)])
-    
 
-    return {'loss': -np.mean(results),
+        res = [i for i in results]
+
+    return {'loss': -np.mean(res),
             'status': STATUS_OK,
             # -- store other results like this
             'eval_time': time.time(),
-            'loss_variance': np.var(results)}
+            'loss_variance': np.var(res)}
 
 if __name__ == '__main__':
 
@@ -239,7 +240,7 @@ if __name__ == '__main__':
         space,
         trials=trials,
         algo=tpe.suggest,
-        max_evals=25,
+        max_evals=2,
     )
 
     print("The best combination of hyperparameters is:")
