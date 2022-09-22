@@ -1,19 +1,19 @@
 import random
 import numpy as np
 
-def mutate(individual, id_node, highest_innov_id, weight_mutation_lambda = 3, link_insertion_prob=.05, node_insertion_prob=.05):
+def mutate(individual, id_node, highest_innov_id, weight_mutation_lambda = 3, link_insertion_lambda=.05, node_insertion_lambda=.05):
     mut_string = 0
-    for i in range(np.random.poisson(weight_mutation_lambda, 1)[0]):
+    for _ in range(np.random.poisson(weight_mutation_lambda, 1)[0]):
         individual = adjust_weight(individual)
         mut_string = mut_string+100
 
-    if random.uniform(0, 1) < link_insertion_prob:
+    for _ in range(np.random.poisson(link_insertion_lambda, 1)[0]):
         individual =  link_insertion(individual, id_node, highest_innov_id)
         id_node +=1
         highest_innov_id += 1
         mut_string = mut_string + 20
 
-    if random.uniform(0, 1) < node_insertion_prob:
+    for _ in range(np.random.poisson(node_insertion_lambda, 1)[0]):
         individual = add_node(individual, id_node, highest_innov_id)
         id_node +=1
         highest_innov_id += 2

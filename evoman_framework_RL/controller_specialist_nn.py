@@ -26,6 +26,7 @@ import numpy as np
 import pandas as pd
 
 from hyperopt import fmin, tpe, hp, Trials, STATUS_OK
+import concurrent.futures
 
 headless = True
 if headless:
@@ -122,7 +123,9 @@ def run_neat(number_generations = 3, population_size = 10,compat_threshold = 2,
 # run_neat(number_generations = 15, population_size = 60, compat_threshold = 5)
 
 
-def neat_optimizer(number_generations, population_size, weight_mutation_lambda, compat_threshold,link_insert_prob,node_insert_prob, enemy):
+def neat_optimizer(list_):
+    number_generations, population_size, weight_mutation_lambda, compat_threshold, link_insertion_lambda, node_insertion_lambda, enemy = list_[0], list_[1], list_[2], list_[3], list_[4], list_[5], list_[6]
+
     for en in enemy:
         overview = np.zeros((number_generations,2))
         # Update the enemy
@@ -155,7 +158,7 @@ def neat_optimizer(number_generations, population_size, weight_mutation_lambda, 
                 #write parents in result table
                 temp += 1
             for m in range(len(children)):
-                children[m], id_node, highest_innov_id, string = mutate(children[m], id_node, highest_innov_id,weight_mutation_lambda, link_insert_prob, node_insert_prob)
+                children[m], id_node, highest_innov_id, string = mutate(children[m], id_node, highest_innov_id,weight_mutation_lambda, link_insertion_lambda, node_insertion_lambda)
                 children[m].set_id(m)
 
             #evaluate/run for whole new generation and assign fitness value
@@ -171,9 +174,9 @@ def neat_iterations(parameters):
     population_size = int(parameters['population_size'])
     weight_mutation_lambda = parameters['weight_mutation_lambda']
     compat_threshold = parameters['compat_threshold']
-    link_insert_prob = parameters['link_insert_prob']
-    node_insert_prob = parameters['node_insert_prob']
-    enemy=[1]
+    link_insertion_lambda = parameters['link_insertion_lambda']
+    node_insertion_lambda = parameters['node_insertion_lambda']
+    enemy=[2]
 
     print(parameters)
     
@@ -182,7 +185,7 @@ def neat_iterations(parameters):
     for iteration in range(num_iterations):
         print(iteration)
         best_fitnesses.append(neat_optimizer(number_generations, population_size, weight_mutation_lambda,compat_threshold,
-            link_insert_prob,node_insert_prob, enemy))
+            link_insertion_lambda,node_insertion_lambda, enemy))
 
     return { 'loss':-np.mean(best_fitnesses), 
         'status': STATUS_OK,
@@ -190,24 +193,49 @@ def neat_iterations(parameters):
         'eval_time': time.time(),
         'loss_variance': np.var(best_fitnesses)}
 
+def neat_iterations_parallel(parameters):
+    num_iterations = 3
+    number_generations = 10
+    population_size = int(parameters['population_size'])
+    weight_mutation_lambda = parameters['weight_mutation_lambda']
+    compat_threshold = parameters['compat_threshold']
+    link_insertion_lambda = parameters['link_insertion_lambda']
+    node_insertion_lambda = parameters['node_insertion_lambda']
+    enemy = [1]
 
-space = hp.choice('Type_of_model',[{
-        'population_size': hp.quniform("population_size", 10, 10, 1),
-        'weight_mutation_lambda': hp.uniform("weight_mutation_lambda", 0, 5),
-        'compat_threshold': hp.uniform("compat_threshold", 1, 12),
-        'link_insert_prob': hp.uniform("link_insert_prob", 0, 1),
-        'node_insert_prob': hp.uniform("node_insert_prob", 0, 1),
-            }])
+    print(parameters)
+
+    best_fitnesses = []
+    with concurrent.futures.ProcessPoolExecutor() as executor:
+        results = executor.map(neat_optimizer,[[number_generations, population_size, weight_mutation_lambda, compat_threshold,
+                           link_insertion_lambda, node_insertion_lambda, enemy] for _ in range(num_iterations)])
+    for result in results:
+        print(result)
+
+    return {'loss': 0,
+            'status': STATUS_OK,
+            # -- store other results like this
+            'eval_time': time.time(),
+            'loss_variance': 0}
+if __name__ == '__main__':
+
+    space = hp.choice('Type_of_model',[{
+            'population_size': hp.quniform("population_size", 10, 100, 1),
+            'weight_mutation_lambda': hp.uniform("weight_mutation_lambda", .5, 3),
+            'compat_threshold': hp.uniform("compat_threshold", 2, 15),
+            'link_insertion_lambda': hp.uniform("link_insertion_lambda", 0.05, .5),
+            'node_insertion_lambda': hp.uniform("node_insertion_lambda", 0.05, .5),
+                }])
 
 
-trials = Trials()
-best = fmin(
-    neat_iterations,
-    space,
-    trials=trials,
-    algo=tpe.suggest,
-    max_evals=3,
-)
+    trials = Trials()
+    best = fmin(
+        neat_iterations_parallel,
+        space,
+        trials=trials,
+        algo=tpe.suggest,
+        max_evals=25,
+    )
 
-print("The best combination of hyperparameters is:")
-print(best)
+    print("The best combination of hyperparameters is:")
+    print(best)
