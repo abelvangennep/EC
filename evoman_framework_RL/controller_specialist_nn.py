@@ -102,12 +102,12 @@ def run_neat(number_generations = 3, population_size = 10,compat_threshold = 2,
             print('There are ', len(species), ' different species now in total')
             parents = parent_selection(pop_grouped) #This function returns pairs of parents which will be mated. In total the number of pairs equal to the number of offsprings we want to generate
             children = []
- 
+
             for temp, pair in enumerate(parents):
                 children.append(crossover(pair[0], pair[1])) #for loop needed to cross each pair of parents
                 #write parents in result table
                 results[(gen+1)*population_size+temp,2] = gen*100+min(pair[0].get_id(),pair[1].get_id())*10+max(pair[0].get_id(),pair[1].get_id())
-                temp += 1
+
             for m in range(len(children)):
                 children[m], id_node, highest_innov_id, string = mutate(children[m], id_node, highest_innov_id, weight_mutation_lambda, link_insertion_prob, node_insertion_prob)
                 children[m].set_id(m)
@@ -123,7 +123,7 @@ def run_neat(number_generations = 3, population_size = 10,compat_threshold = 2,
         print(results_df)
 
 
-run_neat(number_generations = 4, population_size = 20, compat_threshold = 6)
+#run_neat(number_generations = 4, population_size = 10, compat_threshold = 6)
 
 
 def neat_optimizer(number_generations, population_size, weight_mutation_lambda, compat_threshold,link_insert_prob,node_insert_prob, enemy):
@@ -133,6 +133,8 @@ def neat_optimizer(number_generations, population_size, weight_mutation_lambda, 
         env.update_parameter('enemies', [en])
         #start with population, create 10 random individuals (1 for training now)
         pop = [Individual(initialize_network(), i) for i in range(population_size)]
+        species = [Species(pop[0], 1)]
+        highest_species_id = 1
         highest_innov_id = 101
         id_node = 26
         for gen in range(number_generations): #number of generations
@@ -148,16 +150,15 @@ def neat_optimizer(number_generations, population_size, weight_mutation_lambda, 
             overview[gen,0] = sum(fitnesses)/len(fitnesses)
             overview[gen,1] = calc_avg_dist(pop)
 
-            species = speciation(pop,compat_threshold) #The speciation function takes whole population as list of individuals and returns # a list of lists with individuals [[1,2], [4,5,8], [3,6,9,10], [7]] for example with 10 individuals
+            pop_grouped, species, highest_species_id = speciation(pop, species, highest_species_id, compat_threshold) #The speciation function takes whole population as list of individuals and returns # a list of lists with individuals [[1,2], [4,5,8], [3,6,9,10], [7]] for example with 10 individuals
            
             #add species information to individual
-            parents = parent_selection(species) #This function returns pairs of parents which will be mated. In total the number of pairs equal to the number of offsprings we want to generate
+            parents = parent_selection(pop_grouped) #This function returns pairs of parents which will be mated. In total the number of pairs equal to the number of offsprings we want to generate
             children = []
- 
+
             for temp, pair in enumerate(parents):
                 children.append(crossover(pair[0], pair[1])) #for loop needed to cross each pair of parents
-                #write parents in result table
-                temp += 1
+
             for m in range(len(children)):
                 children[m], id_node, highest_innov_id, string = mutate(children[m], id_node, highest_innov_id,weight_mutation_lambda, link_insert_prob, node_insert_prob)
                 children[m].set_id(m)
@@ -196,7 +197,7 @@ def neat_iterations(parameters):
 
 
 space = hp.choice('Type_of_model',[{
-        'population_size': hp.quniform("population_size", 10, 10, 1),
+        'population_size': hp.quniform("population_size", 10, 11, 1),
         'weight_mutation_lambda': hp.uniform("weight_mutation_lambda", 0, 5),
         'compat_threshold': hp.uniform("compat_threshold", 1, 12),
         'link_insert_prob': hp.uniform("link_insert_prob", 0, 1),
