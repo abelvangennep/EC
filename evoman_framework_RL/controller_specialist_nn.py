@@ -55,7 +55,7 @@ env = Environment(experiment_name=experiment_name,
 # compat_threshold =0
 # link_insert_prob =0
 # node_insert_prob =0
-
+highest_species_id = 0
 
 def run_neat(number_generations = 3, population_size = 10,compat_threshold = 2,
             weight_mutation_lambda = 3, link_insertion_prob=.05, node_insertion_prob=.05, enemy=[1]):
@@ -90,7 +90,9 @@ def run_neat(number_generations = 3, population_size = 10,compat_threshold = 2,
             results[gen*population_size,7] = sum(fitnesses)/len(fitnesses)
             results[gen * population_size, 8] = calc_avg_dist(pop)
 
-            species = speciation(pop,compat_threshold) #The speciation function takes whole population as list of individuals and returns # a list of lists with individuals [[1,2], [4,5,8], [3,6,9,10], [7]] for example with 10 individuals
+            highest_species_id = 0
+            species, highest_species_id = speciation(pop,compat_threshold,highest_species_id)#The speciation function takes whole population as list of individuals and returns # a list of lists with individuals [[1,2], [4,5,8], [3,6,9,10], [7]] for example with 10 individuals
+            print(species)
             #add species information to individual
             for m in range(len(species)):
                 for j in range(len(species[m])):
@@ -119,7 +121,7 @@ def run_neat(number_generations = 3, population_size = 10,compat_threshold = 2,
         print(results_df)
 
 
-# run_neat(number_generations = 15, population_size = 60, compat_threshold = 5)
+run_neat(number_generations = 15, population_size = 60, compat_threshold = 12)
 
 
 def neat_optimizer(number_generations, population_size, weight_mutation_lambda, compat_threshold,link_insert_prob,node_insert_prob, enemy):
@@ -162,7 +164,7 @@ def neat_optimizer(number_generations, population_size, weight_mutation_lambda, 
             print('fitness:', max_value, "venemylife", venemylife)
 
     return max_value
-
+'''
 def neat_iterations(parameters):
     num_iterations = 3
     number_generations = 10
@@ -198,6 +200,7 @@ space = hp.choice('Type_of_model',[{
 
 
 trials = Trials()
+
 best = fmin(
     neat_iterations,
     space,
@@ -208,3 +211,4 @@ best = fmin(
 
 print("The best combination of hyperparameters is:")
 print(best)
+'''

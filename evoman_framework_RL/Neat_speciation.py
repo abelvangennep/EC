@@ -2,6 +2,18 @@ from Neat import *
 import time
 import numpy as np
 
+class Species():
+    def __init__(self, ind, id):
+        self.location = ind
+        self.existence = 1
+        self.id = id
+
+    def get_location(self):
+        return self.location
+
+    def get_id(self):
+        return self.id
+
 def distance(parent1, parent2):
     parent1_net = parent1.get_network()
     parent2_net = parent2.get_network()
@@ -50,20 +62,22 @@ def distance(parent1, parent2):
     distance = abs((c1 * len(excess_genes))/N + (c2 * len(disjoint_genes))/N + c3*W)
     return distance
 
-def speciation(population, compatibility_threshold=2):
-    species = [[population[0]]]
+def speciation(population, highest_species_id, compatibility_threshold=12):
+    species = [Species(population[0], highest_species_id + 1)]
     for individual in population[1:]:
         tracker = 0
         for specie in species:
-            #print(individual, specie[0])
-            check_distance = distance(individual, specie[0])
+            # print(individual, specie[0])
+            check_distance = distance(individual, specie.get_location())
             if check_distance <= compatibility_threshold:
-                specie.append(individual)
+                individual.set_species(specie.get_id())
                 tracker += 1
                 break
         if tracker == 0:
-            species.append([individual])
-    return species
+            species.append(Species(individual, highest_species_id + 1))
+            highest_species_id += 1
+    return species, highest_species_id
+
 
 def calc_avg_dist(pop):
     dist_matrix = np.zeros((len(pop),len(pop)))
@@ -73,6 +87,6 @@ def calc_avg_dist(pop):
             dist_matrix[i,j] = distance(pop[i],pop[j])
             distances.append(dist_matrix[i,j])
     return sum(distances)/len(distances)
-    #print(speciation(population))
+
 
 

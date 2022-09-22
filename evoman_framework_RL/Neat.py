@@ -48,12 +48,13 @@ class Connection_Gene():
 
 
 class Individual():
-    def __init__(self, network, id = None):
+    def __init__(self, network, id = None, sp = 0):
         """ Initialize individual for the NEAT population"""
         self.network = network
         self.highest_innov = 0
         self.fitness = None
         self.id = id
+        self.species = sp
 
     def get_network(self):
         return self.network
@@ -79,6 +80,9 @@ class Individual():
     def print_network(self):
         for i in range(len(self.network)):
             print('From node ',self.network[i].get_inn().get_type(), ' ' , self.network[i].get_inn().get_id(), ' to node ', self.network[i].get_out().get_id(), ' ', self.network[i].get_out().get_type(), ' weight: ', self.network[i].get_weight(), ' innov_id: ', self.network[i].get_innov_id())
+
+    def get_specie(self, sp):
+        self.species = sp
 
 def initialize_network():
     """ Initialize network with only 20 input nodes and 5 output nodes"""
