@@ -171,7 +171,7 @@ class Environment(object):
         else:
             exec('self.' + name + "= " + str(value))
 
-        self.print_logs("PARAMETER CHANGE: " + name + " = " + str(value))
+        # self.print_logs("PARAMETER CHANGE: " + name + " = " + str(value))
 
     def print_logs(self, msg):
         if self.logs == "on":
@@ -488,9 +488,9 @@ class Environment(object):
 
             # returns results of the run
             def return_run():
-                self.print_logs("RUN: run status: enemy: " + str(self.enemyn) + "; fitness: " + str(
-                    fitness) + "; player life: " + str(self.player.life) + "; enemy life: " + str(
-                    self.enemy.life) + "; time: " + str(self.time))
+                #self.print_logs("RUN: run status: enemy: " + str(self.enemyn) + "; fitness: " + str(
+                #    fitness) + "; player life: " + str(self.player.life) + "; enemy life: " + str(
+                #    self.enemy.life) + "; time: " + str(self.time))
 
                 return fitness, self.player.life, self.enemy.life, self.time
 

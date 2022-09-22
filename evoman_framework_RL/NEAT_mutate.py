@@ -58,7 +58,6 @@ def link_insertion(individual, id_node, highest_innov_id):
             individual.add_connection(connected_node, selected_node, weight, id_node, highest_innov_id)
         elif connected_node.type == "Output":
             individual.add_connection(selected_node, connected_node, weight, id_node, highest_innov_id)
-        else:
-            print("SHOULD NOT BE HERE, PROBLEM IN NEAT_MUTATION")
+
 
     return individual
