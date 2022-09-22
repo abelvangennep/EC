@@ -41,7 +41,7 @@ n_hidden_neurons = 0
 env = Environment(experiment_name=experiment_name,
                   playermode="ai",
                   player_controller=player_controller(n_hidden_neurons),
-                  speed="normal",
+                  speed="fastest",
                   enemymode="static",
                   level=2)
 
@@ -56,9 +56,9 @@ compat_threshold =0
 link_insert_prob =0
 node_insert_prob =0
 
-# Run configuration of parameters 3 times
-def run_neat(number_generations = 3, population_size = 10, mutation_prob =0,compat_threshold = 2,
-            link_insert_prob =0.1,node_insert_prob =0, enemy=[1]):
+
+def run_neat(number_generations = 3, population_size = 10,compat_threshold = 2,
+            weight_mutation_lambda = 3, link_insertion_prob=.05, node_insertion_prob=.05, enemy=[1]):
     for en in enemy:
         results = np.zeros(((number_generations+1)*population_size, 9)) #Generation, Individual, Parents, Species, Fitness, time, avg.gen fitness, avg.gen dist
         overview = np.zeros((number_generations,2))
@@ -71,15 +71,15 @@ def run_neat(number_generations = 3, population_size = 10, mutation_prob =0,comp
   
         for gen in range(number_generations): #number of generations
             start_gen = time.time()
-            print('---- Starting with generation ', gen)
+            #print('---- Starting with generation ', gen)
             fitnesses = []
             for pcont in pop:
-                print('Evaluating individual ', pcont.get_id())
+                #print('Evaluating individual ', pcont.get_id())
                 start_ind = time.time()
                 vfitness, vplayerlife, venemylife, vtime = env.play(pcont)
                 pcont.set_fitness(calc_fitness_value(vplayerlife, venemylife, vtime)+100) # no negative fitness values
                 fitnesses.append(calc_fitness_value(vplayerlife, venemylife, vtime))
-                print('Fitness value: ', calc_fitness_value(vplayerlife, venemylife, vtime), ' time elapsed: ', time.time()-start_ind)
+                #print('Fitness value: ', calc_fitness_value(vplayerlife, venemylife, vtime), ' time elapsed: ', time.time()-start_ind)
                 results[gen * population_size+pcont.get_id(),0] = gen
                 results[gen * population_size + pcont.get_id(), 1] = pcont.get_id()
                 results[gen * population_size + pcont.get_id(), 5] = vfitness
@@ -105,7 +105,7 @@ def run_neat(number_generations = 3, population_size = 10, mutation_prob =0,comp
                 results[(gen+1)*population_size+temp,2] = gen*100+min(pair[0].get_id(),pair[1].get_id())*10+max(pair[0].get_id(),pair[1].get_id())
                 temp += 1
             for m in range(len(children)):
-                children[m], id_node, highest_innov_id, string = mutate(children[m], id_node, highest_innov_id,mutation_prob, link_insert_prob, node_insert_prob)
+                children[m], id_node, highest_innov_id, string = mutate(children[m], id_node, highest_innov_id, weight_mutation_lambda, link_insertion_prob, node_insertion_prob)
                 children[m].set_id(m)
                 results[(gen + 1) * population_size + m, 4] = string
 
@@ -115,8 +115,8 @@ def run_neat(number_generations = 3, population_size = 10, mutation_prob =0,comp
 
 
         results_df = pd.DataFrame(results, columns = ['Generation', 'Individual', 'Parents', 'Species', 'Mutation', 'Fitness', 'Time elapsed', 'Avg. fitness', 'Avg. distance'])
-        results_df.to_csv('test1.csv')
+        results_df.to_csv('test2.csv')
         print(results_df)
 
 
-run_neat()
+run_neat(number_generations = 15, population_size = 60, compat_threshold = 5)

@@ -1,8 +1,9 @@
 import random
+import numpy as np
 
-def mutate(individual, id_node, highest_innov_id, weight_mutation_prob=0.9, link_insertion_prob=.05, node_insertion_prob=.05):
+def mutate(individual, id_node, highest_innov_id, weight_mutation_lambda = 3, link_insertion_prob=.05, node_insertion_prob=.05):
     mut_string = 0
-    if random.uniform(0, 1) < weight_mutation_prob:
+    for i in range(np.random.poisson(weight_mutation_lambda, 1)[0]):
         individual = adjust_weight(individual)
         mut_string = mut_string+100
 
@@ -22,8 +23,9 @@ def mutate(individual, id_node, highest_innov_id, weight_mutation_prob=0.9, link
 
 def adjust_weight(individual):
     network = individual.get_network()
-    single_connection = random.choice(network)
-    single_connection.weight = random.uniform(-1,1)
+    for i in range(random.randint(1,10)):
+        single_connection = random.choice(network)
+        single_connection.weight = random.uniform(-1,1)
 
     return individual
 
@@ -50,8 +52,8 @@ def link_insertion(individual, id_node, highest_innov_id):
     if hidden_nodes:
         selected_node = random.choice(hidden_nodes)
         all_nodes.remove(selected_node)
-        connected_node = random.sample(all_nodes, 1)
-        weight = random.uniform(-1,1)
+        connected_node = random.sample(all_nodes, 1)[0]
+        weight = random.uniform(-1, 1)
         if connected_node.type == "Input":
             individual.add_connection(connected_node, selected_node, weight, id_node, highest_innov_id)
         elif connected_node.type == "Output":

@@ -85,7 +85,7 @@ def initialize_network():
     network = []
     for i in range(5):
         for j in range(20):
-            network.append(Connection_Gene(Node_Gene('Input',j+1),Node_Gene('Output',21+i), random.uniform(-5,5),20*i+j+1, True))
+            network.append(Connection_Gene(Node_Gene('Input',j+1),Node_Gene('Output',21+i), random.uniform(-10,10),20*i+j+1, True))
     return network
 
 def calc_fitness_value(plife, elife,runtime):
