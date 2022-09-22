@@ -81,8 +81,11 @@ class Individual():
         for i in range(len(self.network)):
             print('From node ',self.network[i].get_inn().get_type(), ' ' , self.network[i].get_inn().get_id(), ' to node ', self.network[i].get_out().get_id(), ' ', self.network[i].get_out().get_type(), ' weight: ', self.network[i].get_weight(), ' innov_id: ', self.network[i].get_innov_id())
 
-    def get_specie(self, sp):
+    def set_species(self, sp):
         self.species = sp
+
+    def get_species(self):
+        return self.species
 
 def initialize_network():
     """ Initialize network with only 20 input nodes and 5 output nodes"""

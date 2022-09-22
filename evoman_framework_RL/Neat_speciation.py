@@ -62,9 +62,8 @@ def distance(parent1, parent2):
     distance = abs((c1 * len(excess_genes))/N + (c2 * len(disjoint_genes))/N + c3*W)
     return distance
 
-def speciation(population, highest_species_id, compatibility_threshold=12):
-    species = [Species(population[0], highest_species_id + 1)]
-    for individual in population[1:]:
+def speciation(population, species, highest_species_id, compatibility_threshold=12):
+    for individual in population:
         tracker = 0
         for specie in species:
             # print(individual, specie[0])
@@ -75,8 +74,22 @@ def speciation(population, highest_species_id, compatibility_threshold=12):
                 break
         if tracker == 0:
             species.append(Species(individual, highest_species_id + 1))
+            individual.set_species(highest_species_id + 1)
             highest_species_id += 1
-    return species, highest_species_id
+
+    #group individuals of same species together
+    grouped_inds = [[population[0]]]
+    for individual in population[1:]:
+        placed = False
+        for g in range(len(grouped_inds)):
+            if individual.get_species() == grouped_inds[g][0].get_species():
+                grouped_inds[g].append(individual)
+                placed = True
+                break
+        if placed == False:
+            grouped_inds.append([individual])
+    #print([[grouped_inds[i][j].get_species() for j in range(len(grouped_inds[i]))] for i in range(len(grouped_inds)) ])
+    return grouped_inds, species, highest_species_id
 
 
 def calc_avg_dist(pop):
