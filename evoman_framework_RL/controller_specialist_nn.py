@@ -25,7 +25,7 @@ from NEAT_mutate import mutate
 import numpy as np
 import pandas as pd
 
-from hyperopt import fmin, tpe, hp, Trials
+from hyperopt import fmin, tpe, hp, Trials, STATUS_OK
 
 headless = True
 if headless:
@@ -134,8 +134,10 @@ def neat_optimizer(number_generations, population_size, weight_mutation_lambda, 
         for gen in range(number_generations): #number of generations
             
             fitnesses = []
+            venemylifes = []
             for pcont in pop:
                 vfitness, vplayerlife, venemylife, vtime = env.play(pcont)
+                venemylifes.append(venemylife)
                 pcont.set_fitness(calc_fitness_value(vplayerlife, venemylife, vtime)+100) # no negative fitness values
                 fitnesses.append(calc_fitness_value(vplayerlife, venemylife, vtime))
 
@@ -159,12 +161,12 @@ def neat_optimizer(number_generations, population_size, weight_mutation_lambda, 
             #evaluate/run for whole new generation and assign fitness value
             pop = children
             max_value = max(fitnesses)
-            print('fitness:', max_value, "venemylife", venemylife)
+            print('gen: ', gen, '   fitness: ', max_value, "    venemylife:", min(venemylifes))
 
     return max_value
 
 def neat_iterations(parameters):
-    num_iterations = 3
+    num_iterations = 1
     number_generations = 10
     population_size = int(parameters['population_size'])
     weight_mutation_lambda = parameters['weight_mutation_lambda']
@@ -182,14 +184,15 @@ def neat_iterations(parameters):
         best_fitnesses.append(neat_optimizer(number_generations, population_size, weight_mutation_lambda,compat_threshold,
             link_insert_prob,node_insert_prob, enemy))
 
-    return { 'loss':-np.mean(best_fitnesses),
+    return { 'loss':-np.mean(best_fitnesses), 
+        'status': STATUS_OK,
         # -- store other results like this
         'eval_time': time.time(),
         'loss_variance': np.var(best_fitnesses)}
 
 
 space = hp.choice('Type_of_model',[{
-        'population_size': hp.quniform("population_size_3", 50, 100, 1),
+        'population_size': hp.quniform("population_size", 10, 10, 1),
         'weight_mutation_lambda': hp.uniform("weight_mutation_lambda", 0, 5),
         'compat_threshold': hp.uniform("compat_threshold", 1, 12),
         'link_insert_prob': hp.uniform("link_insert_prob", 0, 1),
