@@ -168,7 +168,7 @@ def neat_optimizer(number_generations, population_size, weight_mutation_lambda, 
             print('gen: ', gen, '   fitness: ', max_value, "    venemylife:", min(venemylifes))
 
     return max_value
-'''
+
 def neat_iterations(parameters):
     num_iterations = 1
     number_generations = 10
@@ -216,4 +216,3 @@ best = fmin(
 
 print("The best combination of hyperparameters is:")
 print(best)
-'''
