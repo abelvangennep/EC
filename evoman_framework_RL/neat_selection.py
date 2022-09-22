@@ -27,7 +27,7 @@ def get_num_individuals(species):
     return ind
 
 def calc_offsprings(species, pop_size):
-    print([len(species[i]) for i in range(len(species))])
+    #print([len(species[i]) for i in range(len(species))])
     pop_mean_fitness = 0
     species_fitness_sum = []
     species_offsprings = []
@@ -35,7 +35,7 @@ def calc_offsprings(species, pop_size):
     for s in range(len(species)):
         temp_fitness = 0
         l = len(species[s])
-        print(l)
+        #print(l)
         for i in range(l):
             temp_fitness += species[s][i].get_fitness()/l
         pop_mean_fitness += temp_fitness
