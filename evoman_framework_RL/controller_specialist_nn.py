@@ -140,6 +140,7 @@ def neat_optimizer(list_):
         highest_species_id = 1
         highest_innov_id = 101
         id_node = 26
+        best_three_gens = 0
         for gen in range(number_generations): #number of generations
             
             fitnesses = []
@@ -170,8 +171,10 @@ def neat_optimizer(list_):
             pop = children
             max_value = max(fitnesses)
             print('gen: ', gen, '   fitness: ', max_value, "    venemylife:", min(venemylifes))
+            if gen >= number_generations-3:
+                best_three_gens += max_value
 
-    return max_value
+    return best_three_gens/3
 
 def neat_iterations(parameters):
     num_iterations = 1
@@ -199,7 +202,7 @@ def neat_iterations(parameters):
         'loss_variance': np.var(best_fitnesses)}
 
 def neat_iterations_parallel(parameters):
-    num_iterations = 3
+    num_iterations = 4
     number_generations = 10
     population_size = int(parameters['population_size'])
     weight_mutation_lambda = parameters['weight_mutation_lambda']
@@ -217,11 +220,9 @@ def neat_iterations_parallel(parameters):
 
         res = [i for i in results]
 
-    return {'loss': -np.mean(res),
-            'status': STATUS_OK,
-            # -- store other results like this
-            'eval_time': time.time(),
-            'loss_variance': np.var(res)}
+    dict = {'loss': -np.mean(res),'status': STATUS_OK,'eval_time': time.time(),'loss_variance': np.var(res)}
+    print(dict)
+    return -np.mean(res)
 
 if __name__ == '__main__':
 
@@ -240,7 +241,7 @@ if __name__ == '__main__':
         space,
         trials=trials,
         algo=tpe.suggest,
-        max_evals=2,
+        max_evals=25,
     )
 
     print("The best combination of hyperparameters is:")
