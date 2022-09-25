@@ -10,7 +10,7 @@
 import os
 import sys
 import time
-
+import matplotlib.pyplot as plt
 
 sys.path.insert(0, 'evoman')
 from environment import Environment
@@ -58,10 +58,10 @@ env = Environment(experiment_name=experiment_name,
 # node_insert_prob =0
 highest_species_id = 0
 
-def run_neat(number_generations = 3, population_size = 10,compat_threshold = 2,
-            weight_mutation_lambda = 3, link_insertion_prob=.05, node_insertion_prob=.05, enemy=[2]):
+def run_neat(list_):
+    number_generations, population_size, weight_mutation_lambda, compat_threshold, link_insertion_lambda, node_insertion_lambda, enemy = list_[0], list_[1], list_[2], list_[3], list_[4], list_[5], list_[6]
     for en in enemy:
-        results = np.zeros(((number_generations+1)*population_size, 9)) #Generation, Individual, Parents, Species, Fitness, time, avg.gen fitness, avg.gen dist
+        #results = np.zeros(((number_generations+1)*population_size, 9)) #Generation, Individual, Parents, Species, Fitness, time, avg.gen fitness, avg.gen dist
         overview = np.zeros((number_generations,2))
         # Update the enemy
         env.update_parameter('enemies', [en])
@@ -83,48 +83,87 @@ def run_neat(number_generations = 3, population_size = 10,compat_threshold = 2,
                 pcont.set_fitness(calc_fitness_value(vplayerlife, venemylife, vtime)+100) # no negative fitness values
                 fitnesses.append(calc_fitness_value(vplayerlife, venemylife, vtime))
                 #print('Fitness value: ', calc_fitness_value(vplayerlife, venemylife, vtime), ' time elapsed: ', time.time()-start_ind)
-                results[gen * population_size+pcont.get_id(),0] = gen
-                results[gen * population_size + pcont.get_id(), 1] = pcont.get_id()
-                results[gen * population_size + pcont.get_id(), 5] = vfitness
-                results[gen * population_size + pcont.get_id(), 6] = time.time()-start_ind
+                #results[gen * population_size+pcont.get_id(),0] = gen
+                #results[gen * population_size + pcont.get_id(), 1] = pcont.get_id()
+                #results[gen * population_size + pcont.get_id(), 5] = vfitness
+                #results[gen * population_size + pcont.get_id(), 6] = time.time()-start_ind
 
             overview[gen,0] = sum(fitnesses)/len(fitnesses)
-            overview[gen,1] = calc_avg_dist(pop)
-            results[gen*population_size,7] = sum(fitnesses)/len(fitnesses)
-            results[gen * population_size, 8] = calc_avg_dist(pop)
+            overview[gen,1] = max(fitnesses)
+            #results[gen*population_size,7] = sum(fitnesses)/len(fitnesses)
+            #results[gen * population_size, 8] = calc_avg_dist(pop)
 
 
             pop_grouped, species, highest_species_id = speciation(pop, species, highest_species_id, compat_threshold)#The speciation function takes whole population as list of individuals and returns # a list of lists with individuals [[1,2], [4,5,8], [3,6,9,10], [7]] for example with 10 individuals
-            print(species)
+            #print(species)
             #add species information to individual
-            for m in range(len(pop_grouped)):
-                for j in range(len(pop_grouped[m])):
-                    results[gen*population_size+pop_grouped[m][j].get_id(), 3] = pop_grouped[m][j].get_species()
-            print('There are ', len(species), ' different species now in total')
+            #for m in range(len(pop_grouped)):
+                #for j in range(len(pop_grouped[m])):
+                    #results[gen*population_size+pop_grouped[m][j].get_id(), 3] = pop_grouped[m][j].get_species()
+            #print('There are ', len(species), ' different species now in total')
             parents = parent_selection(pop_grouped) #This function returns pairs of parents which will be mated. In total the number of pairs equal to the number of offsprings we want to generate
             children = []
 
             for temp, pair in enumerate(parents):
                 children.append(crossover(pair[0], pair[1])) #for loop needed to cross each pair of parents
                 #write parents in result table
-                results[(gen+1)*population_size+temp,2] = gen*100+min(pair[0].get_id(),pair[1].get_id())*10+max(pair[0].get_id(),pair[1].get_id())
+                #results[(gen+1)*population_size+temp,2] = gen*100+min(pair[0].get_id(),pair[1].get_id())*10+max(pair[0].get_id(),pair[1].get_id())
 
             for m in range(len(children)):
-                children[m], id_node, highest_innov_id, string = mutate(children[m], id_node, highest_innov_id, weight_mutation_lambda, link_insertion_prob, node_insertion_prob)
+                children[m], id_node, highest_innov_id, string = mutate(children[m], id_node, highest_innov_id, weight_mutation_lambda, link_insertion_lambda, node_insertion_lambda)
                 children[m].set_id(m)
-                results[(gen + 1) * population_size + m, 4] = string
+                #results[(gen + 1) * population_size + m, 4] = string
 
             #evaluate/run for whole new generation and assign fitness value
             pop = children
-            print('Generation ', gen, ' took ', time.time()-start_gen, ' seconds to elapse. Highest fitness value was ', max(fitnesses) )
+            #print('Generation ', gen, ' took ', time.time()-start_gen, ' seconds to elapse. Highest fitness value was ', max(fitnesses) )
 
 
-        results_df = pd.DataFrame(results, columns = ['Generation', 'Individual', 'Parents', 'Species', 'Mutation', 'Fitness', 'Time elapsed', 'Avg. fitness', 'Avg. distance'])
-        results_df.to_csv('test2.csv')
-        print(results_df)
-
+        #results_df = pd.DataFrame(results, columns = ['Generation', 'Individual', 'Parents', 'Species', 'Mutation', 'Fitness', 'Time elapsed', 'Avg. fitness', 'Avg. distance'])
+        #results_df.to_csv('test2.csv')
+        #print(results_df)
+        return overview
 
 #run_neat(number_generations = 4, population_size = 10, compat_threshold = 6)
+def final_experiment_data(runs = 10, number_generations = 20, population_size = 45, compat_threshold = 4.3, weight_mutation_lambda = 0.6, link_insertion_lambda=0.34, node_insertion_lambda=.12, enemy=[4]):
+    plot_max_fit = np.zeros((number_generations,runs))
+    plot_mean_fit = np.zeros((number_generations,runs))
+    for i in range(int(runs/2)):
+        with concurrent.futures.ProcessPoolExecutor() as executor:
+            results = executor.map(run_neat, [[number_generations, population_size, weight_mutation_lambda, compat_threshold,
+                           link_insertion_lambda, node_insertion_lambda, enemy] for _ in range(2)])
+        #new_cols = run_neat(number_generations, population_size, compat_threshold, weight_mutation_lambda, link_insertion_lambda, node_insertion_lambda, enemy)
+        print('Finished ', 2*i, ' runs out of ', runs)
+        j = 0
+        for new_cols in results:
+            plot_mean_fit[:,i*2+j] = new_cols[:,0]
+            plot_max_fit[:,i*2+j] = new_cols[:,1]
+            j+=1
+    df_max_fit = pd.DataFrame(plot_max_fit)
+    df_max_fit.to_csv('max_fitness_'+str(runs)+'runs_enemy'+str(enemy[0])+'.csv', index_label=None)
+    df_mean_fit = pd.DataFrame(plot_mean_fit)
+    df_mean_fit.to_csv('mean_fitness_'+str(runs)+'runs_enemy'+str(enemy[0])+'.csv', index_label=None)
+
+def final_experiment_plot(max_fit_csv, mean_fit_csv):
+    plot_max_fit = np.loadtxt(max_fit_csv, delimiter = ',', skiprows=1)[:,1:]
+    print(plot_max_fit)
+    plot_mean_fit = np.loadtxt(mean_fit_csv, delimiter = ',', skiprows=1)[:,1:]
+    number_generations = len(plot_max_fit)
+    x = [i for i in range(1,number_generations+1)]
+    data_box = [plot_max_fit[i,:] for i in range(number_generations)]
+    y1 = np.average(plot_mean_fit[:], axis=1)
+    y2 = np.average(plot_max_fit[:], axis=1)
+    plt.plot(x,y1,'b-')
+    plt.plot(x,y2,'r-')
+    plt.boxplot(data_box, labels=x)
+    plt.ylabel('Fitness')
+    plt.xlabel('Generation')
+    plt.show()
+
+if __name__ == '__main__':
+    final_experiment_data(runs = 10, number_generations = 20, population_size = 45, compat_threshold = 4.3, weight_mutation_lambda = 0.6, link_insertion_lambda=0.34, node_insertion_lambda=.12, enemy=[4]) #runs has to be even number
+    #final_experiment_plot('max_fitness_10runs_enemy4.csv', 'mean_fitness_10runs_enemy4.csv')
+
 
 
 def neat_optimizer(list_):
@@ -224,6 +263,7 @@ def neat_iterations_parallel(parameters):
     print(dict)
     return -np.mean(res)
 
+'''
 if __name__ == '__main__':
 
     space = hp.choice('Type_of_model',[{
@@ -246,3 +286,4 @@ if __name__ == '__main__':
 
     print("The best combination of hyperparameters is:")
     print(best)
+'''
