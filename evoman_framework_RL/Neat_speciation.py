@@ -3,16 +3,33 @@ import time
 import numpy as np
 
 class Species():
-    def __init__(self, ind, id):
+    def __init__(self, ind, id, hf):
         self.location = ind
-        self.existence = 1
+        self.evolve = 0
         self.id = id
+        self.highest_fitness = hf
+        self.members = [ind]
 
     def get_location(self):
         return self.location
 
     def get_id(self):
         return self.id
+
+    def inc_evolve(self):
+        self.evolve += 1
+    def set_evolve(self,val):
+        self.evolve = val
+    def get_highest_fitness(self):
+        return self.highest_fitness
+    def set_highest_fitness(self, val):
+        self.highest_fitness = val
+
+    def clear_members(self):
+        self.members = []
+
+    def add_member(self,mem):
+        self.members.append(mem)
 
 def distance(parent1, parent2):
     parent1_net = parent1.get_network()
@@ -63,6 +80,9 @@ def distance(parent1, parent2):
     return distance
 
 def speciation(population, species, highest_species_id, compatibility_threshold=12):
+    for specie in species:
+        specie.inc_evolve()
+        specie.clear_members()
     for individual in population:
         tracker = 0
         for specie in species:
@@ -70,10 +90,14 @@ def speciation(population, species, highest_species_id, compatibility_threshold=
             check_distance = distance(individual, specie.get_location())
             if check_distance <= compatibility_threshold:
                 individual.set_species(specie.get_id())
+                if specie.get_highest_fitness() < individual.get_fitness():
+                    specie.set_highest_fitness(individual.get_fitness())
+                    specie.set_evolve(0)
+                    specie.add_member(individual)
                 tracker += 1
                 break
         if tracker == 0:
-            species.append(Species(individual, highest_species_id + 1))
+            species.append(Species(individual, highest_species_id + 1, individual.get_fitness()))
             individual.set_species(highest_species_id + 1)
             highest_species_id += 1
 
