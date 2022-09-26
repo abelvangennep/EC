@@ -3,7 +3,7 @@ import math
 
 import numpy as np
 from Neat import Individual, initialize_network
-
+from Neat_speciation import Species
 
 ###create test population in species distributed
 #species = []
@@ -22,10 +22,26 @@ from Neat import Individual, initialize_network
 
 def get_num_individuals(species):
     ind = 0
-    for s in range(len(species)):
-        for l in range(len(species[s])):
-            ind+=1
+    for specie in species:
+        specie.get_members()
+        ind += len(species.get_members())
     return ind
+
+def highest_pop_score(species):
+    highest_score = - 15
+    for specie in species:
+        if specie.get_highest_fitness() > highest_score:
+            highest_score = specie.get_highest_fitness()
+        else:
+            continue
+    return highest_score
+
+def get_all_individuals(species):
+    all_members = []
+    for specie in species:
+        all_members.append(specie.get_members())
+    return all_members
+
 
 def calc_offsprings(species, pop_size):
     #print([len(species[i]) for i in range(len(species))])
