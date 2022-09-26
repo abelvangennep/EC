@@ -3,27 +3,22 @@ import math
 
 import numpy as np
 from Neat import Individual, initialize_network
+from Neat_speciation import Species
 
 ###create test population in species distributed
-#species = []
-#species.append([Individual(initialize_network())])
-#species.append([Individual(initialize_network()) for i in range(2)])
-#species.append([Individual(initialize_network()) for i in range(3)])
-#species.append([Individual(initialize_network()) for i in range(4)])
-#print(species)
-#f_vals = []
+#species = [Species(Individual(initialize_network()),i,0) for i in range(5)]
+#for specie in species:
+#    specie.add_member(Individual(initialize_network()))
+
 #for s in range(len(species)):
-#    for l in range(len(species[s])):
-#        species[s][l].set_fitness(random.randint(0,1000))
-#        f_vals.append(species[s][l].get_fitness())
-#print(f_vals)
+#   for l in range(len(species[s].get_members())):
+#       species[s].get_members()[l].set_fitness(random.randint(0,1000))
 
 
 def get_num_individuals(species):
     ind = 0
     for specie in species:
-        specie.get_members()
-        ind += len(species.get_members())
+        ind += len(specie.get_members())
     return ind
 
 def highest_pop_score(species):
@@ -38,74 +33,93 @@ def highest_pop_score(species):
 def get_all_individuals(species):
     all_members = []
     for specie in species:
-        all_members.append(specie.get_members())
+        for mem in specie.get_members():
+            all_members.append(mem)
     return all_members
 
-
 def calc_offsprings(species, pop_size):
+    """ Returns array with number of offsprings necessary at species id index"""
     #print([len(species[i]) for i in range(len(species))])
+    print('num individuals: ', get_all_individuals(species))
+    print('Number of specieses: ', len(species))
     pop_mean_fitness = 0
-    species_fitness_sum = []
-    species_offsprings = []
-    inds = get_num_individuals(species)
+    species_fitness_sum = np.zeros(len(species))
+    species_offsprings = np.zeros(len(species))
+    inds_fertile = 0
     for s in range(len(species)):
         temp_fitness = 0
-        l = len(species[s])
+        l = len(species[s].get_members()) #write def get_members
         #print(l)
-        for i in range(l):
-            temp_fitness += species[s][i].get_fitness()/l
-        pop_mean_fitness += temp_fitness
-        species_fitness_sum.append(temp_fitness)
-    pop_mean_fitness = pop_mean_fitness/inds
+        if l > 1:
+            for i in range(l):
+                temp_fitness += species[s].get_members()[i].get_fitness()/l
+                inds_fertile+=1
+            pop_mean_fitness += temp_fitness
+            species_fitness_sum[s] = temp_fitness
+    if inds_fertile >0:
+        pop_mean_fitness = pop_mean_fitness/inds_fertile
+    else:
+        pop_mean_fitness = 0
     for s in range(len(species)):
-        if pop_mean_fitness != 0:
-            species_offsprings.append(species_fitness_sum[s]/pop_mean_fitness)
-        else:
-            species_offsprings.append(0)
+        if len(species[s].get_members())>1:
+            if pop_mean_fitness != 0:
+                species_offsprings[s] = species_fitness_sum[s]/pop_mean_fitness
 
     #Rounding section
-    sp_down = [math.floor(i) for i in species_offsprings]
-    if sum(sp_down) == pop_size:
+    sp_down = np.floor(species_offsprings)
+    if np.sum(sp_down) == pop_size:
         return sp_down
     else:
-        dec = np.array([i % 1 for i in species_offsprings])
-        while sum(sp_down) < pop_size:
+        dec = species_offsprings%1
+        while np.sum(sp_down) < pop_size:
             m = np.argmax(dec)
             sp_down[m]+=1
             dec[m] = 0
+    print('new offsprings to generate: ', sum(sp_down))
     return sp_down
 
 def fitness_of_list(pop):
     return sum([i.get_fitness() for i in pop])
 
 def choose_parents(pa, off):
+    #print(pa)
     parents = []
     for i in range(off):
         if len(pa)==2:
             parents.append(pa)
-        else:
+        elif len(pa) > 2:
             choice = random.sample(pa, 2)
             #choice = random.choices(pa, weights = [j.get_fitness()/fitness_of_list(pa)*100 for j in pa],k=2)
             parents.append(choice)
     return parents
 
+def choose_parents_cross_species(species, offsprings):
+    pop = get_all_individuals(species)
+    parents = []
+    for _ in range(offsprings):
+        choice = random.sample(pop,2)
+        parents.append(choice)
+    return parents
+
+
+
 def parent_selection(species):
     parents = []
-    i = 0
     inds = get_num_individuals(species)
-    while i < len(species):
-        if len(species[i]) <= 1:
-            species.pop(i)
-            i -= 1
-        i += 1
+        #check if specie will be extinct
     #print('species after pop, ', [len(species[i]) for i in range(len(species))])
     if len(species)>0:
         offsprings = calc_offsprings(species, inds)
+        print('array of offsprings per species: ', offsprings)
         for s in range(len(species)):
-            p = choose_parents(species[s], offsprings[s])
-            for j in p:
-                parents.append(j)
+            if offsprings[s] > 0:
+                if (species[s].get_evolve() >= 3) and (highest_pop_score(species) > species[s].get_highest_fitness()):
+                    #Genocide lets go, generate random parent pairs for as many offsprings as this species would have produced
+                    p = choose_parents_cross_species(species, offsprings[s])
+                else:
+                    p = choose_parents(species[s].get_members(), int(offsprings[s]))
+                for j in p:
+                    parents.append(j)
     return parents
 
-#parents = parent_selection(species)
-#print(len(parents))
+#print(len(parent_selection(species)))

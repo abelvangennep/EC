@@ -67,7 +67,7 @@ def run_neat(list_):
         env.update_parameter('enemies', [en])
         #start with population, create 10 random individuals (1 for training now)
         pop = [Individual(initialize_network(), i) for i in range(population_size)]
-        species = [Species(pop[0], 1)]
+        species = [Species(pop[0],1,0)]
         highest_species_id = 1
         highest_innov_id = 101
         id_node = 26
