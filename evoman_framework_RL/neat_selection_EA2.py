@@ -3,7 +3,6 @@ import math
 
 import numpy as np
 from Neat import Individual, initialize_network
-from Neat_speciation import Species
 
 ###create test population in species distributed
 #species = []
