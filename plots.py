@@ -51,7 +51,7 @@ def final_experiment_line(max_fit_csv_EA1, mean_fit_csv_EA1):
 
     plt.plot(x,y1_EA1)
     plt.plot(x,y2_EA1)
-    # plt.errorbar(x,y1,y1std)
+    plt.errorbar(x,y1,y1std)
     # plt.errorbar(x,y2,y2std)
     plt.fill_between(x, y1_EA1 - y1std_EA1, y1_EA1 + y1std_EA1, alpha=0.5)
     plt.fill_between(x, y2_EA1 - y2std_EA1, y2_EA1 + y2std_EA1, alpha=0.5)
