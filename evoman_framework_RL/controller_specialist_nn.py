@@ -116,7 +116,7 @@ def run_neat(list_):
 
             #evaluate/run for whole new generation and assign fitness value
             pop = children
-            #print('Generation ', gen, ' took ', time.time()-start_gen, ' seconds to elapse. Highest fitness value was ', max(fitnesses) )
+            print('Generation ', gen, ' took ', time.time()-start_gen, ' seconds to elapse. Highest fitness value was ', max(fitnesses) )
 
 
         #results_df = pd.DataFrame(results, columns = ['Generation', 'Individual', 'Parents', 'Species', 'Mutation', 'Fitness', 'Time elapsed', 'Avg. fitness', 'Avg. distance'])
@@ -124,7 +124,18 @@ def run_neat(list_):
         #print(results_df)
         return overview
 
-#run_neat(number_generations = 4, population_size = 10, compat_threshold = 6)
+
+number_generations = 10
+population_size = 45
+compat_threshold = 4.3
+weight_mutation_lambda = 0.6
+link_insertion_lambda = 0.34
+node_insertion_lambda = .12
+enemy = [4]
+
+
+run_neat([number_generations, population_size, weight_mutation_lambda, compat_threshold, link_insertion_lambda, node_insertion_lambda, enemy])
+
 def final_experiment_data(runs = 10, number_generations = 20, population_size = 45, compat_threshold = 4.3, weight_mutation_lambda = 0.6, link_insertion_lambda=0.34, node_insertion_lambda=.12, enemy=[4]):
     plot_max_fit = np.zeros((number_generations,runs))
     plot_mean_fit = np.zeros((number_generations,runs))
@@ -160,9 +171,9 @@ def final_experiment_plot(max_fit_csv, mean_fit_csv):
     plt.xlabel('Generation')
     plt.show()
 
-if __name__ == '__main__':
-    final_experiment_data(runs = 10, number_generations = 20, population_size = 45, compat_threshold = 4.3, weight_mutation_lambda = 0.6, link_insertion_lambda=0.34, node_insertion_lambda=.12, enemy=[4]) #runs has to be even number
-    #final_experiment_plot('max_fitness_10runs_enemy4.csv', 'mean_fitness_10runs_enemy4.csv')
+# if __name__ == '__main__':
+#     final_experiment_data(runs = 10, number_generations = 20, population_size = 45, compat_threshold = 4.3, weight_mutation_lambda = 0.6, link_insertion_lambda=0.34, node_insertion_lambda=.12, enemy=[4]) #runs has to be even number
+#     #final_experiment_plot('max_fitness_10runs_enemy4.csv', 'mean_fitness_10runs_enemy4.csv')
 
 
 

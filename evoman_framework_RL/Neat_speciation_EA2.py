@@ -8,7 +8,7 @@ class Species():
         self.evolve = 0
         self.id = id
         self.highest_fitness = hf
-        self.members = [ind]
+        self.members = []
 
     def print(self):
         print('Species id: ', self.id, ' not evolved for ', self.evolve, ' generations. Members are:  ', [self.members[i].get_id() for i in range(len(self.members))], ' HF:', self.highest_fitness)
@@ -33,7 +33,7 @@ class Species():
     def clear_members(self):
         self.members = []
 
-    def add_member(self,mem):
+    def add_member(self, mem):
         self.members.append(mem)
 
     def get_members(self):
@@ -90,24 +90,31 @@ def distance(parent1, parent2):
     return distance
 
 def speciation(population, species, highest_species_id, compatibility_threshold=12):
+    print('compatibility threshold: ', compatibility_threshold)
+    #print('number of species: ', len(species))
     for specie in species:
         specie.inc_evolve()
         specie.clear_members()
     for individual in population:
+        #print('Individual ', individual.get_id())
         tracker = 0
         for specie in species:
             # print(individual, specie[0])
             check_distance = distance(individual, specie.get_location())
+            #print('Distance to species ', specie.get_id(), ' equal to ', check_distance)
             if check_distance <= compatibility_threshold:
                 individual.set_species(specie.get_id())
+                specie.add_member(individual)
+                tracker = 1
+                #print('Individual added to species: ', specie.get_id())
                 if specie.get_highest_fitness() < individual.get_fitness():
                     specie.set_highest_fitness(individual.get_fitness())
                     specie.set_evolve(0)
-                specie.add_member(individual)
-                tracker += 1
                 break
         if tracker == 0:
             species.append(Species(individual, highest_species_id + 1, individual.get_fitness()))
+            species[len(species)-1].add_member(individual)
+            #print('---New species created---')
             individual.set_species(highest_species_id + 1)
             highest_species_id += 1
     #print([[grouped_inds[i][j].get_species() for j in range(len(grouped_inds[i]))] for i in range(len(grouped_inds)) ])

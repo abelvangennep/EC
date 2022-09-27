@@ -75,7 +75,7 @@ def run_neat(list_):
         id_node = 26
         for gen in range(number_generations):  # number of generations
             start_gen = time.time()
-            print('---- Starting with generation ', gen)
+            #print('---- Starting with generation ', gen)
             fitnesses = []
             for pcont in pop:
                 # print('Evaluating individual ', pcont.get_id())
@@ -84,8 +84,8 @@ def run_neat(list_):
                 pcont.set_fitness(
                     calc_fitness_value(vplayerlife, venemylife, vtime) + 100)  # no negative fitness values
                 fitnesses.append(calc_fitness_value(vplayerlife, venemylife, vtime))
-                print('Fitness value: ', calc_fitness_value(vplayerlife, venemylife, vtime), ' time elapsed: ',
-                      time.time() - start_ind)
+                #print('Fitness value: ', calc_fitness_value(vplayerlife, venemylife, vtime), ' time elapsed: ',
+                #     time.time() - start_ind)
                 # results[gen * population_size+pcont.get_id(),0] = gen
                 # results[gen * population_size + pcont.get_id(), 1] = pcont.get_id()
                 # results[gen * population_size + pcont.get_id(), 5] = vfitness
@@ -94,8 +94,7 @@ def run_neat(list_):
             # overview[gen,1] = max(fitnesses)
             # results[gen*population_size,7] = sum(fitnesses)/len(fitnesses)
             # results[gen * population_size, 8] = calc_avg_dist(pop)
-            species, highest_species_id = speciation(pop, species, highest_species_id,
-                                                     compat_threshold)  # The speciation function takes whole population as list of individuals and returns # a list of lists with individuals [[1,2], [4,5,8], [3,6,9,10], [7]] for example with 10 individuals
+            species, highest_species_id = speciation(pop, species, highest_species_id, compat_threshold)  # The speciation function takes whole population as list of individuals and returns # a list of lists with individuals [[1,2], [4,5,8], [3,6,9,10], [7]] for example with 10 individuals
             for specie in species:
                 specie.print()
             # print(species)
@@ -104,13 +103,10 @@ def run_neat(list_):
             # for j in range(len(pop_grouped[m])):
             # results[gen*population_size+pop_grouped[m][j].get_id(), 3] = pop_grouped[m][j].get_species()
             # print('There are ', len(species), ' different species now in total')
-            parents = parent_selection(
-                species)  # This function returns pairs of parents which will be mated. In total the number of pairs equal to the number of offsprings we want to generate
-            print('Number of parents pairs: ', len(parents))
+            parents = parent_selection(species)  # This function returns pairs of parents which will be mated. In total the number of pairs equal to the number of offsprings we want to generate
             children = []
             for temp, pair in enumerate(parents):
                 children.append(crossover(pair[0], pair[1]))  # for loop needed to cross each pair of parents
-            print('number of children generated: ', len(children))
             # write parents in result table
             # results[(gen+1)*population_size+temp,2] = gen*100+min(pair[0].get_id(),pair[1].get_id())*10+max(pair[0].get_id(),pair[1].get_id())
 
@@ -131,9 +127,9 @@ def run_neat(list_):
         return overview
 
 
-number_generations = 5
-population_size = 20
-compat_threshold = 20  # 4.3
+number_generations = 15
+population_size = 45
+compat_threshold = 4.3
 weight_mutation_lambda = 0.6
 link_insertion_lambda = 0.34
 node_insertion_lambda = .12
@@ -201,7 +197,6 @@ def neat_optimizer(list_):
         id_node = 26
         best_three_gens = 0
         for gen in range(number_generations):  # number of generations
-
             fitnesses = []
             venemylifes = []
             for pcont in pop:
@@ -210,21 +205,18 @@ def neat_optimizer(list_):
                 pcont.set_fitness(
                     calc_fitness_value(vplayerlife, venemylife, vtime) + 100)  # no negative fitness values
                 fitnesses.append(calc_fitness_value(vplayerlife, venemylife, vtime))
-
             overview[gen, 0] = sum(fitnesses) / len(fitnesses)
             overview[gen, 1] = calc_avg_dist(pop)
-
-            species, highest_species_id = speciation(pop, species, highest_species_id,
-                                                     compat_threshold)  # The speciation function takes whole population as list of individuals and returns # a list of lists with individuals [[1,2], [4,5,8], [3,6,9,10], [7]] for example with 10 individuals
-
+            #print('Num individuals going in speciation: ', len(pop))
+            species, highest_species_id = speciation(pop, species, highest_species_id, compat_threshold)  # The speciation function takes whole population as list of individuals and returns # a list of lists with individuals [[1,2], [4,5,8], [3,6,9,10], [7]] for example with 10 individuals
             # add species information to individual
-            parents = parent_selection(
-                species)  # This function returns pairs of parents which will be mated. In total the number of pairs equal to the number of offsprings we want to generate
+            parents = parent_selection(species)  # This function returns pairs of parents which will be mated. In total the number of pairs equal to the number of offsprings we want to generate
+            #print('Number of parents: ', len(parents))
             children = []
 
             for temp, pair in enumerate(parents):
                 children.append(crossover(pair[0], pair[1]))  # for loop needed to cross each pair of parents
-
+            #print('Number of children: ', len(children))
             for m in range(len(children)):
                 children[m], id_node, highest_innov_id, string = mutate(children[m], id_node, highest_innov_id,
                                                                         weight_mutation_lambda, link_insertion_lambda,
@@ -233,6 +225,7 @@ def neat_optimizer(list_):
 
             # evaluate/run for whole new generation and assign fitness value
             pop = children
+            print('Individuals in next generation: ', len(pop))
             max_value = max(fitnesses)
             print('gen: ', gen, '   fitness: ', max_value, "    venemylife:", min(venemylifes))
             if gen >= number_generations - 3:
@@ -241,7 +234,7 @@ def neat_optimizer(list_):
     return best_three_gens / 3
 
 
-neat_optimizer([number_generations, population_size, compat_threshold, weight_mutation_lambda, link_insertion_lambda,
+neat_optimizer([number_generations, population_size, weight_mutation_lambda, compat_threshold,  link_insertion_lambda,
                 node_insertion_lambda, enemy])
 
 
