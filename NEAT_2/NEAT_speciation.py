@@ -90,7 +90,7 @@ def distance(parent1, parent2):
     return distance
 
 def speciation(population, species, highest_species_id, compatibility_threshold=12):
-    print('compatibility threshold: ', compatibility_threshold)
+    # print('compatibility threshold: ', compatibility_threshold)
     #print('number of species: ', len(species))
     for specie in species:
         specie.inc_evolve()

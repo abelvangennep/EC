@@ -225,17 +225,17 @@ def neat_optimizer(list_):
 
             # evaluate/run for whole new generation and assign fitness value
             pop = children
-            print('Individuals in next generation: ', len(pop))
+            # print('Individuals in next generation: ', len(pop))
             max_value = max(fitnesses)
-            print('gen: ', gen, '   fitness: ', max_value, "    venemylife:", min(venemylifes))
+            # print('gen: ', gen, '   fitness: ', max_value, "    venemylife:", min(venemylifes))
             if gen >= number_generations - 3:
                 best_three_gens += max_value
 
     return best_three_gens / 3
 
 
-neat_optimizer([number_generations, population_size, weight_mutation_lambda, compat_threshold,  link_insertion_lambda,
-                node_insertion_lambda, enemy])
+# neat_optimizer([number_generations, population_size, weight_mutation_lambda, compat_threshold,  link_insertion_lambda,
+#                 node_insertion_lambda, enemy])
 
 
 def neat_iterations(parameters):
@@ -273,7 +273,7 @@ def neat_iterations_parallel(parameters):
     compat_threshold = parameters['compat_threshold']
     link_insertion_lambda = parameters['link_insertion_lambda']
     node_insertion_lambda = parameters['node_insertion_lambda']
-    enemy = [4]
+    enemy = [7]
 
     print(parameters)
 
@@ -290,7 +290,7 @@ def neat_iterations_parallel(parameters):
     return -np.mean(res)
 
 
-'''
+
 if __name__ == '__main__':
 
     space = hp.choice('Type_of_model',[{
@@ -313,4 +313,3 @@ if __name__ == '__main__':
 
     print("The best combination of hyperparameters is:")
     print(best)
-'''
