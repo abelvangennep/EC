@@ -76,4 +76,25 @@ def final_experiment_line(max_fit_csv_EA1, mean_fit_csv_EA1,max_fit_csv_EA2, mea
 
     return plt.show()
 
-final_experiment_line('mean_fitness_10runs_enemy4.csv', 'max_fitness_10runs_enemy4.csv')
+#final_experiment_line('mean_fitness_10runs_enemy4.csv', 'max_fitness_10runs_enemy4.csv')
+def boxplot(boxplot_EA1, boxplot_EA2):
+    EA1 = np.loadtxt(boxplot_EA1, delimiter = ',', skiprows = 1)[:,1:]
+    EA2 = np.loadtxt(boxplot_EA2, delimiter = ',', skiprows = 1)[:,1:]
+    EA1 = [EA1[i, 0] for i in range(len(EA1))]
+    EA2 = [EA2[i, 0] for i in range(len(EA2))]
+    data = [EA1, EA2]
+    print(data)
+    
+    fig = plt.figure(figsize =(10, 7))
+    ax = fig.add_axes([0, 0, 1, 1])
+
+    ax.set(xlabel = 'EA', ylabel = 'Individual Gain')
+
+    ax.set_xticklabels(['EA 1', 'EA 2'])
+    ax.boxplot(data)
+    plt.show()
+     
+    return 
+
+if __name__ == '__main__':
+   # boxplot('NEAT_1/boxplot_NEAT12runs_enemy4.csv', 'NEAT_2/boxplot_NEAT22runs_enemy4.csv')

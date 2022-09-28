@@ -58,6 +58,10 @@ env = Environment(experiment_name=experiment_name,
 # node_insert_prob =0
 highest_species_id = 0
 
+import statistics
+
+bestindivids = []
+
 def run_neat(list_):
     number_generations, population_size, weight_mutation_lambda, compat_threshold, link_insertion_lambda, node_insertion_lambda, enemy = list_[0], list_[1], list_[2], list_[3], list_[4], list_[5], list_[6]
     for en in enemy:
@@ -76,11 +80,15 @@ def run_neat(list_):
             start_gen = time.time()
             #print('---- Starting with generation ', gen)
             fitnesses = []
+            bestind = pop[0]
+            bestind.set_fitness(0)
             for pcont in pop:
                 #print('Evaluating individual ', pcont.get_id())
                 start_ind = time.time()
                 vfitness, vplayerlife, venemylife, vtime = env.play(pcont)
                 pcont.set_fitness(calc_fitness_value(vplayerlife, venemylife, vtime)+100) # no negative fitness values
+                if pcont.get_fitness()  > bestind.get_fitness():
+                    bestind = pcont
                 fitnesses.append(calc_fitness_value(vplayerlife, venemylife, vtime))
                 #print('Fitness value: ', calc_fitness_value(vplayerlife, venemylife, vtime), ' time elapsed: ', time.time()-start_ind)
                 #results[gen * population_size+pcont.get_id(),0] = gen
@@ -117,7 +125,9 @@ def run_neat(list_):
             #evaluate/run for whole new generation and assign fitness value
             pop = children
             print('Generation ', gen, ' took ', time.time()-start_gen, ' seconds to elapse. Highest fitness value was ', max(fitnesses) )
-
+        bestindivids.append(bestind)
+        for bestind in bestindivids:
+            print('Best ind; ', bestind.get_id(), 'and its fitness: ', bestind.get_fitness())
 
         #results_df = pd.DataFrame(results, columns = ['Generation', 'Individual', 'Parents', 'Species', 'Mutation', 'Fitness', 'Time elapsed', 'Avg. fitness', 'Avg. distance'])
         #results_df.to_csv('test2.csv')
@@ -145,6 +155,7 @@ def final_experiment_data(runs = 10, number_generations = 20, population_size = 
         #new_cols = run_neat(number_generations, population_size, compat_threshold, weight_mutation_lambda, link_insertion_lambda, node_insertion_lambda, enemy)
         print('Finished ', 2*i, ' runs out of ', runs)
         j = 0
+        print(results)
         for new_cols in results:
             plot_mean_fit[:,i*2+j] = new_cols[:,0]
             plot_max_fit[:,i*2+j] = new_cols[:,1]
@@ -170,8 +181,22 @@ def final_experiment_plot(max_fit_csv, mean_fit_csv):
     plt.xlabel('Generation')
     plt.show()
 
-# if __name__ == '__main__':
-#     final_experiment_data(runs = 10, number_generations = 20, population_size = 45, compat_threshold = 4.3, weight_mutation_lambda = 0.6, link_insertion_lambda=0.34, node_insertion_lambda=.12, enemy=[4]) #runs has to be even number
+def data_for_boxplot():
+     # run 5 times
+    fitness = []
+    all_avg = []
+    for bestind in bestindivids:
+        for i in range(5):
+            vfitness, vplayerlife, venemylife, vtime = env.play(bestind)
+            fitness.append(calc_fitness_value(vplayerlife, venemylife, vtime))
+            i += 1 
+        avg = statistics.mean(fitness)
+        all_avg.append(avg)
+    print(all_avg)
+    return all_avg    
+
+if __name__ == '__main__':
+    final_experiment_data(runs = 2, number_generations = 5, population_size = 45, compat_threshold = 4.3, weight_mutation_lambda = 0.6, link_insertion_lambda=0.34, node_insertion_lambda=.12, enemy=[4]) #runs has to be even number
 #     #final_experiment_plot('max_fitness_10runs_enemy4.csv', 'mean_fitness_10runs_enemy4.csv')
 
 
@@ -274,25 +299,25 @@ def neat_iterations_parallel(parameters):
     return -np.mean(res)
 
 
-if __name__ == '__main__':
+#if __name__ == '__main__':
+#
+#    space = hp.choice('Type_of_model',[{
+#            'population_size': hp.quniform("population_size", 10, 100, 1),
+#            'weight_mutation_lambda': hp.uniform("weight_mutation_lambda", .5, 3),
+#            'compat_threshold': hp.uniform("compat_threshold", 2, 15),
+#            'link_insertion_lambda': hp.uniform("link_insertion_lambda", 0.05, .5),
+#            'node_insertion_lambda': hp.uniform("node_insertion_lambda", 0.05, .5),
+#                }])
 
-    space = hp.choice('Type_of_model',[{
-            'population_size': hp.quniform("population_size", 10, 100, 1),
-            'weight_mutation_lambda': hp.uniform("weight_mutation_lambda", .5, 3),
-            'compat_threshold': hp.uniform("compat_threshold", 2, 15),
-            'link_insertion_lambda': hp.uniform("link_insertion_lambda", 0.05, .5),
-            'node_insertion_lambda': hp.uniform("node_insertion_lambda", 0.05, .5),
-                }])
 
+#    trials = Trials()
+#    best = fmin(
+#        neat_iterations_parallel,
+#        space,
+#        trials=trials,
+#        algo=tpe.suggest,
+#        max_evals=25,
+#    )
 
-    trials = Trials()
-    best = fmin(
-        neat_iterations_parallel,
-        space,
-        trials=trials,
-        algo=tpe.suggest,
-        max_evals=25,
-    )
-
-    print("The best combination of hyperparameters is:")
-    print(best)
+#    print("The best combination of hyperparameters is:")
+#    print(best)

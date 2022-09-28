@@ -127,11 +127,15 @@ def final_experiment_data(runs = 10, number_generations = 20, population_size = 
             plot_max_fit[:,i*2+index] = overview[:,1]
 
     print(scores_of_best_individuals)
+    df_boxplot = pd.DataFrame(scores_of_best_individuals)
+    df_boxplot.to_csv('boxplot_NEAT1'+str(runs)+'runs_enemy'+str(enemy[0])+'.csv', index_label=None)
+
+
 
     df_max_fit = pd.DataFrame(plot_max_fit)
-    df_max_fit.to_csv('max_fitness_'+str(runs)+'runs_enemy'+str(enemy[0])+'.csv', index_label=None)
+    df_max_fit.to_csv('max_fitness_NEAT1'+str(runs)+'runs_enemy'+str(enemy[0])+'.csv', index_label=None)
     df_mean_fit = pd.DataFrame(plot_mean_fit)
-    df_mean_fit.to_csv('mean_fitness_'+str(runs)+'runs_enemy'+str(enemy[0])+'.csv', index_label=None)
+    df_mean_fit.to_csv('mean_fitness_NEAT1'+str(runs)+'runs_enemy'+str(enemy[0])+'.csv', index_label=None)
 
 if __name__ == '__main__':
     final_experiment_data(runs = 2, number_generations = 2, population_size = 4, compat_threshold = 4.3, weight_mutation_lambda = 0.6, link_insertion_lambda=0.34, node_insertion_lambda=.12, enemy=[4]) #runs has to be even number

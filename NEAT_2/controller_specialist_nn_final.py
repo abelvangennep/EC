@@ -127,11 +127,13 @@ def final_experiment_data(runs, number_generations, population_size, compat_thre
             plot_max_fit[:,i*2+index] = overview[:,1]
 
     print(scores_of_best_individuals)
+    df_boxplot = pd.DataFrame(scores_of_best_individuals)
+    df_boxplot.to_csv('boxplot_NEAT2'+str(runs)+'runs_enemy'+str(enemy[0])+'.csv', index_label=None)
 
     df_max_fit = pd.DataFrame(plot_max_fit)
-    df_max_fit.to_csv('max_fitness_' + str(runs) + 'runs_enemy' + str(enemy[0]) + '.csv', index_label=None)
+    df_max_fit.to_csv('max_fitness_NEAT2' + str(runs) + 'runs_enemy' + str(enemy[0]) + '.csv', index_label=None)
     df_mean_fit = pd.DataFrame(plot_mean_fit)
-    df_mean_fit.to_csv('mean_fitness_' + str(runs) + 'runs_enemy' + str(enemy[0]) + '.csv', index_label=None)
+    df_mean_fit.to_csv('mean_fitness_NEAT2' + str(runs) + 'runs_enemy' + str(enemy[0]) + '.csv', index_label=None)
 
 
 
