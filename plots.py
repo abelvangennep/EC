@@ -38,23 +38,38 @@ import numpy as np
 
 # line_plot('mean_fitness_10runs_enemy4.csv', 'max_fitness_10runs_enemy4.csv')
 
-def final_experiment_line(max_fit_csv_EA1, mean_fit_csv_EA1):
+def final_experiment_line(max_fit_csv_EA1, mean_fit_csv_EA1,max_fit_csv_EA2, mean_fit_csv_EA2):
     plot_mean_fit = np.loadtxt(mean_fit_csv_EA1, delimiter = ',', skiprows=1)[:,1:]
     plot_max_fit = np.loadtxt(max_fit_csv_EA1, delimiter = ',', skiprows=1)[:,1:]
+    plot_mean_fit_2 = np.loadtxt(mean_fit_csv_EA2, delimiter = ',', skiprows=1)[:,1:]
+    plot_max_fit_2 = np.loadtxt(max_fit_csv_EA2, delimiter = ',', skiprows=1)[:,1:]
     number_generations = len(plot_max_fit)
     x = [i for i in range(1,number_generations+1)]
+
     y1_EA1 = np.average(plot_mean_fit[:], axis=1)
     y2_EA1 = np.average(plot_max_fit[:], axis=1)
+    y1_EA2 = np.average(plot_mean_fit_2[:], axis=1)
+    y2_EA2 = np.average(plot_max_fit_2[:], axis=1)
+
+
     y1std_EA1 = np.std(plot_mean_fit, axis = 1)
     y2std_EA1 = np.std(plot_max_fit, axis = 1)
+    y1std_EA2 = np.std(plot_mean_fit_2, axis = 1)
+    y2std_EA2 = np.std(plot_max_fit_2, axis = 1)
+
     fig = plt.subplots(figsize=(15, 9))
 
     plt.plot(x,y1_EA1)
     plt.plot(x,y2_EA1)
-    plt.errorbar(x,y1,y1std)
+    plt.plot(x,y1_EA2)
+    plt.plot(x,y2_EA2)
+    # plt.errorbar(x,y1,y1std)
     # plt.errorbar(x,y2,y2std)
     plt.fill_between(x, y1_EA1 - y1std_EA1, y1_EA1 + y1std_EA1, alpha=0.5)
     plt.fill_between(x, y2_EA1 - y2std_EA1, y2_EA1 + y2std_EA1, alpha=0.5)
+    plt.fill_between(x, y1_EA2 - y1std_EA2, y1_EA2 + y1std_EA2, alpha=0.5)
+    plt.fill_between(x, y2_EA2 - y2std_EA2, y2_EA2 + y2std_EA2, alpha=0.5)
+
     plt.legend(loc='upper left', labels=['Max EA1', 'Mean EA1'])
     plt.ylabel('Fitness')
     plt.xlabel('Generation')
