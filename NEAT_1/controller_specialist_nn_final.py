@@ -55,9 +55,12 @@ def run_neat(list_):
     """
     Run neat returns a 2 dimensional matrix,  inculding mean and max fitness
     """
-    number_generations, population_size, weight_mutation_lambda, compat_threshold, link_insertion_lambda, node_insertion_lambda, enemy = list_[0], list_[1], list_[2], list_[3], list_[4], list_[5], list_[6]
+    number_generations, population_size, weight_mutation_lambda, compat_threshold, link_insertion_lambda, node_insertion_lambda, enemy = \
+        list_[0], list_[1], list_[2], list_[3], list_[4], list_[5], list_[6]
     for en in enemy:
         overview = np.zeros((number_generations,2))
+
+        # Update the enemy
         env.update_parameter('enemies', [en])
 
         pop = [Individual(initialize_network(), i) for i in range(population_size)]
@@ -65,10 +68,12 @@ def run_neat(list_):
         highest_species_id = 1
         highest_innov_id = 101
         id_node = 26
-  
+        best_inviduals = []
+
         for gen in range(number_generations): #number of generations
             start_gen = time.time()
             fitnesses = []
+
             for pcont in pop:
                 start_ind = time.time()
                 vfitness, vplayerlife, venemylife, vtime = env.play(pcont)
@@ -78,6 +83,9 @@ def run_neat(list_):
             overview[gen,0] = sum(fitnesses)/len(fitnesses)
             overview[gen,1] = max(fitnesses)
 
+            good_individual = pop[fitnesses.index(max(fitnesses))]
+            best_inviduals.append((max(fitnesses),good_individual))
+            
             pop_grouped, species, highest_species_id = speciation(pop, species, highest_species_id, compat_threshold)#The speciation function takes whole population as list of individuals and returns # a list of lists with individuals [[1,2], [4,5,8], [3,6,9,10], [7]] for example with 10 individuals
             parents = parent_selection(pop_grouped) #This function returns pairs of parents which will be mated. In total the number of pairs equal to the number of offsprings we want to generate
             children = []
@@ -93,7 +101,9 @@ def run_neat(list_):
             pop = children
             print('Generation ', gen, ' took ', time.time()-start_gen, ' seconds to elapse. Highest fitness value was ', max(fitnesses) )
 
-        return overview
+        best_fitness = max(best_inviduals,key=lambda item:item[0])[0]
+        
+        return overview, best_fitness
 
 
 
@@ -101,22 +111,28 @@ def final_experiment_data(runs = 10, number_generations = 20, population_size = 
     "Writes the best outcomes to a seperate csv-file"
     plot_max_fit = np.zeros((number_generations,runs))
     plot_mean_fit = np.zeros((number_generations,runs))
+    scores_of_best_individuals = []
     for i in range(int(runs/2)):
         with concurrent.futures.ProcessPoolExecutor() as executor:
             results = executor.map(run_neat, [[number_generations, population_size, weight_mutation_lambda, compat_threshold,
                            link_insertion_lambda, node_insertion_lambda, enemy] for _ in range(2)])
 
         print('Finished ', 2*i, ' runs out of ', runs)
-        j = 0
-        for new_cols in results:
-            plot_mean_fit[:,i*2+j] = new_cols[:,0]
-            plot_max_fit[:,i*2+j] = new_cols[:,1]
-            j+=1
+
+        for index, new_cols in enumerate(results):
+            overview = new_cols[0]
+            best_fitness = new_cols[1]
+            scores_of_best_individuals.append(best_fitness)
+            plot_mean_fit[:,i*2+index] = overview[:,0]
+            plot_max_fit[:,i*2+index] = overview[:,1]
+
+    print(scores_of_best_individuals)
+
     df_max_fit = pd.DataFrame(plot_max_fit)
     df_max_fit.to_csv('max_fitness_'+str(runs)+'runs_enemy'+str(enemy[0])+'.csv', index_label=None)
     df_mean_fit = pd.DataFrame(plot_mean_fit)
     df_mean_fit.to_csv('mean_fitness_'+str(runs)+'runs_enemy'+str(enemy[0])+'.csv', index_label=None)
 
 if __name__ == '__main__':
-    final_experiment_data(runs = 10, number_generations = 20, population_size = 45, compat_threshold = 4.3, weight_mutation_lambda = 0.6, link_insertion_lambda=0.34, node_insertion_lambda=.12, enemy=[4]) #runs has to be even number
+    final_experiment_data(runs = 2, number_generations = 2, population_size = 4, compat_threshold = 4.3, weight_mutation_lambda = 0.6, link_insertion_lambda=0.34, node_insertion_lambda=.12, enemy=[4]) #runs has to be even number
 
