@@ -114,14 +114,18 @@ def choose_parents_cross_species(species, offsprings):
     return parents
 
 def get_best_from_species(specie, r = 0.66):
-    ordered_list = []
-    best_inds = []
-    for ind in specie.get_members():
-        ordered_list.append((ind, ind.get_fitness()))
-    ordered_list.sort(key=lambda y: y[1], reverse=True)
-    for i in range(int(len(ordered_list)*r)):
-        best_inds.append(ordered_list[i][0])
-    return best_inds
+    if len(specie) > 2:
+        ordered_list = []
+        best_inds = []
+        for ind in specie.get_members():
+            ordered_list.append((ind, ind.get_fitness()))
+        ordered_list.sort(key=lambda y: y[1], reverse=True)
+        for i in range(int(len(ordered_list)*r)):
+            best_inds.append(ordered_list[i][0])
+        return best_inds
+
+    else:
+        return specie
 
 # inds = get_num_individuals(species)
 # print('Inidividuals: ', inds)
