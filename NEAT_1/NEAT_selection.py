@@ -65,11 +65,10 @@ def get_best_from_species(specie, r = 0.66):
     for ind in specie:
         ordered_list.append((ind, ind.get_fitness()))
     ordered_list.sort(key=lambda y: y[1], reverse=True)
-    print('Ordered inds in species: ', [(ordered_list[j][0].get_id(), ordered_list[j][1]) for j in range(len(ordered_list))])
     for i in range(int(len(ordered_list)*r)):
         best_inds.append(ordered_list[i][0])
-    print('best individuals selected: ', [j.get_id() for j in best_inds])
     return best_inds
+    
 def parent_selection(species):
     parents = []
     i = 0

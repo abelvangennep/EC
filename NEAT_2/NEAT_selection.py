@@ -119,10 +119,8 @@ def get_best_from_species(specie, r = 0.66):
     for ind in specie.get_members():
         ordered_list.append((ind, ind.get_fitness()))
     ordered_list.sort(key=lambda y: y[1], reverse=True)
-    print('Ordered inds in species: ', [(ordered_list[j][0].get_id(), ordered_list[j][1]) for j in range(len(ordered_list))])
     for i in range(int(len(ordered_list)*r)):
         best_inds.append(ordered_list[i][0])
-    print('best individuals selected: ', [j.get_id() for j in best_inds])
     return best_inds
 
 # inds = get_num_individuals(species)
@@ -137,7 +135,6 @@ def parent_selection(species):
     #print('species after pop, ', [len(species[i]) for i in range(len(species))])
     if len(species)>0:
         offsprings = calc_offsprings(species, inds)
-        print('array of offsprings per species: ', offsprings)
         for s in range(len(species)):
             if offsprings[s] > 0:
                 if (species[s].get_evolve() >= 3) and (highest_pop_score(species) > species[s].get_highest_fitness()):
