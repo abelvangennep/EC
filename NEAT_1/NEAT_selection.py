@@ -71,7 +71,7 @@ def get_best_from_species(specie, r = 0.66):
         return best_inds
     
     else:
-        return specie
+        return specie.get_members()
     
 def parent_selection(species):
     parents = []

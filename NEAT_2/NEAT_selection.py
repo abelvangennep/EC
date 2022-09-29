@@ -125,7 +125,7 @@ def get_best_from_species(specie, r = 0.66):
         return best_inds
 
     else:
-        return specie
+        return specie.get_members()
 
 # inds = get_num_individuals(species)
 # print('Inidividuals: ', inds)
