@@ -59,6 +59,17 @@ def choose_parents(pa, off):
             parents.append(choice)
     return parents
 
+def get_best_from_species(specie, r = 0.66):
+    ordered_list = []
+    best_inds = []
+    for ind in specie:
+        ordered_list.append((ind, ind.get_fitness()))
+    ordered_list.sort(key=lambda y: y[1], reverse=True)
+    print('Ordered inds in species: ', [(ordered_list[j][0].get_id(), ordered_list[j][1]) for j in range(len(ordered_list))])
+    for i in range(int(len(ordered_list)*r)):
+        best_inds.append(ordered_list[i][0])
+    print('best individuals selected: ', [j.get_id() for j in best_inds])
+    return best_inds
 def parent_selection(species):
     parents = []
     i = 0
@@ -72,7 +83,8 @@ def parent_selection(species):
     if len(species)>0:
         offsprings = calc_offsprings(species, inds)
         for s in range(len(species)):
-            p = choose_parents(species[s], offsprings[s])
+            ord_list = get_best_from_species(species[s])
+            p = choose_parents(ord_list, offsprings[s])
             for j in p:
                 parents.append(j)
     return parents
