@@ -125,14 +125,14 @@ def neat_iterations(parameters):
         'loss_variance': np.var(best_fitnesses)}
 
 def neat_iterations_parallel(parameters):
-    num_iterations = 4
+    num_iterations = 3
     number_generations = 10
-    population_size = int(parameters['population_size'])
+    population_size = 60 #int(parameters['population_size'])
     weight_mutation_lambda = parameters['weight_mutation_lambda']
     compat_threshold = parameters['compat_threshold']
     link_insertion_lambda = parameters['link_insertion_lambda']
     node_insertion_lambda = parameters['node_insertion_lambda']
-    enemy = [4]
+    enemy = [6]
 
     print(parameters)
 
@@ -151,9 +151,9 @@ def neat_iterations_parallel(parameters):
 if __name__ == '__main__':
 
     space = hp.choice('Type_of_model',[{
-            'population_size': hp.quniform("population_size", 10, 100, 1),
+           # 'population_size': hp.quniform("population_size", 10, 100, 1),
             'weight_mutation_lambda': hp.uniform("weight_mutation_lambda", .5, 3),
-            'compat_threshold': hp.uniform("compat_threshold", 2, 15),
+            'compat_threshold': hp.uniform("compat_threshold", 4, 15),
             'link_insertion_lambda': hp.uniform("link_insertion_lambda", 0.05, .5),
             'node_insertion_lambda': hp.uniform("node_insertion_lambda", 0.05, .5),
                 }])

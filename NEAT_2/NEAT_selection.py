@@ -114,7 +114,7 @@ def choose_parents_cross_species(species, offsprings):
     return parents
 
 def get_best_from_species(specie, r = 0.67):
-    if len(specie) > 2:
+    if len(specie.get_members()) > 2:
         ordered_list = []
         best_inds = []
         for ind in specie.get_members():
@@ -125,7 +125,7 @@ def get_best_from_species(specie, r = 0.67):
         return best_inds
 
     else:
-        return specie
+        return specie.get_members()
 
 # inds = get_num_individuals(species)
 # print('Inidividuals: ', inds)

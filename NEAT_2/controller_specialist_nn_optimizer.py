@@ -134,7 +134,7 @@ def neat_iterations_parallel(parameters):
     compat_threshold = parameters['compat_threshold']
     link_insertion_lambda = parameters['link_insertion_lambda']
     node_insertion_lambda = parameters['node_insertion_lambda']
-    enemy = [7]
+    enemy = [2]
 
     print(parameters)
 

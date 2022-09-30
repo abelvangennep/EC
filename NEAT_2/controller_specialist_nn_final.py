@@ -101,9 +101,13 @@ def run_neat(list_):
             pop = children
             print('Generation ', gen, ' took ', time.time()-start_gen, ' seconds to elapse. Highest fitness value was ', max(fitnesses))
         
-        best_fitness = max(best_inviduals,key=lambda item:item[0])[0]
+        best_fitness = max(best_inviduals,key=lambda item:item[0])
+        #print(best_fitness)
+        vfitness, vplayerlife, venemylife, vtime = env.play(best_fitness[1])
+        best_ind_gain = vplayerlife-venemylife
+        #print('Player life: ', vplayerlife, 'and Enemy life: ', venemylife, 'and ind gain: ', vplayerlife-venemylife)
 
-        return overview, best_fitness
+        return overview, best_ind_gain
 
 
 def final_experiment_data(runs, number_generations, population_size, compat_threshold,
@@ -121,8 +125,8 @@ def final_experiment_data(runs, number_generations, population_size, compat_thre
 
         for index, new_cols in enumerate(results):
             overview = new_cols[0]
-            best_fitness = new_cols[1]
-            scores_of_best_individuals.append(best_fitness)
+            best_ind_gain = new_cols[1]
+            scores_of_best_individuals.append(best_ind_gain)
             plot_mean_fit[:,i*2+index] = overview[:,0]
             plot_max_fit[:,i*2+index] = overview[:,1]
 
@@ -138,5 +142,5 @@ def final_experiment_data(runs, number_generations, population_size, compat_thre
 
 
 if __name__ == '__main__':
-    final_experiment_data(runs = 2, number_generations = 2, population_size = 4, compat_threshold = 4.3, weight_mutation_lambda = 0.6, link_insertion_lambda=0.34, node_insertion_lambda=.12, enemy=[4]) #runs has to be even number
+    final_experiment_data(runs = 10, number_generations = 20, population_size = 64, compat_threshold = 14.6, weight_mutation_lambda = 2.3, link_insertion_lambda=0.29, node_insertion_lambda=0.07, enemy=[2]) #runs has to be even number
 
