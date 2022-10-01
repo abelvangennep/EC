@@ -69,7 +69,7 @@ def lineplot(max_fit_csv_EA1, mean_fit_csv_EA1, mean_fit_csv_EA2, max_fit_csv_EA
     plt.fill_between(x, y1_EA2 - y1std_EA2, y1_EA2 + y1std_EA2, alpha=0.5)
     plt.fill_between(x, y2_EA2 - y2std_EA2, y2_EA2 + y2std_EA2, alpha=0.5)
 
-    plt.legend(loc='upper left', labels=['Max EA1', 'Mean EA1'])
+    plt.legend(loc='upper left', labels=['Max EA1', 'Mean EA1', 'Mean EA2', 'Max EA2'])
     plt.ylabel('Fitness')
     plt.xlabel('Generation')
 
@@ -80,18 +80,19 @@ def lineplot(max_fit_csv_EA1, mean_fit_csv_EA1, mean_fit_csv_EA2, max_fit_csv_EA
 def boxplot(boxplot_EA1, boxplot_EA2):
     EA1 = np.loadtxt(boxplot_EA1, delimiter = ',', skiprows = 1)[:,1:]
     EA2 = np.loadtxt(boxplot_EA2, delimiter = ',', skiprows = 1)[:,1:]
-    EA1 = [EA1[i, 0] for i in range(len(EA1))]
-    EA2 = [EA2[i, 0] for i in range(len(EA2))]
-    data = [EA1, EA2]
-    df = pd.DataFrame(data, columns=['EA 1', 'EA 2'])
-
+    EA1_new = [EA1[i, 0] for i in range(len(EA1))]
+    EA2_new = [EA2[i, 0] for i in range(len(EA2))]
+    # data = [EA1_new, EA2_new]
+    # df = pd.DataFrame(data, columns=['EA 1', 'EA 2'])
+    df  = pd.DataFrame(zip(EA1_new, EA2_new), columns=['EA 1', 'EA 2'])
     fig = plt.figure(figsize =(10, 7))
     plt.boxplot(df)
     plt.xlabel('EA')
     plt.ylabel('Individual Gain')
     plt.xticks([1, 2], ['EA 1', 'EA 2'])
-    return plt.show()
+    plt.show()
+    return print(df)
 
 if __name__ == '__main__':
-   boxplot('NEAT_1/boxplot_NEAT12runs_enemy4.csv', 'NEAT_2/boxplot_NEAT22runs_enemy4.csv')
-   # lineplot('mean_fitness_10runs_enemy4.csv', 'max_fitness_10runs_enemy4.csv', mean_neat2.csv, max_neat2.csv)
+   # boxplot('NEAT_1/boxplot_NEAT110runs_enemy1.csv', 'NEAT_2/boxplot_NEAT210runs_enemy1.csv')
+   lineplot('NEAT_1/mean_fitness_NEAT110runs_enemy1.csv', 'NEAT_1/max_fitness_NEAT110runs_enemy1.csv', 'NEAT_2/mean_fitness_NEAT210runs_enemy1.csv', 'NEAT_2/max_fitness_NEAT210runs_enemy1.csv')
