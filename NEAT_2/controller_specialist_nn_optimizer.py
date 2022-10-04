@@ -6,6 +6,8 @@
 # karine.smiras@gmail.com     				                              			  #
 #######################################################################################
 
+
+''' This file was used for parameter optimization.'''
 # imports framework
 import os
 import sys
@@ -15,16 +17,13 @@ import matplotlib.pyplot as plt
 sys.path.insert(0, 'evoman')
 from environment import Environment
 from NEAT_controller import player_controller
-# from demo_controller import player_controller
 from NEAT import Node_Gene, Connection_Gene, initialize_network, Individual, calc_fitness_value
-# from neat_selection import parent_selection
 from NEAT_selection import parent_selection
 from NEAT_speciation import speciation, calc_avg_dist, Species
 from NEAT_crossover import crossover
 from NEAT_mutate import mutate
 # imports other libs
 import numpy as np
-import pandas as pd
 
 from hyperopt import fmin, tpe, hp, Trials, STATUS_OK
 import concurrent.futures
@@ -129,12 +128,12 @@ def neat_iterations(parameters):
 def neat_iterations_parallel(parameters):
     num_iterations = 4
     number_generations = 10
-    population_size = int(parameters['population_size'])
+    population_size = 60 #int(parameters['population_size'])
     weight_mutation_lambda = parameters['weight_mutation_lambda']
     compat_threshold = parameters['compat_threshold']
     link_insertion_lambda = parameters['link_insertion_lambda']
     node_insertion_lambda = parameters['node_insertion_lambda']
-    enemy = [2]
+    enemy = [3]
 
     print(parameters)
 
@@ -155,9 +154,9 @@ def neat_iterations_parallel(parameters):
 if __name__ == '__main__':
 
     space = hp.choice('Type_of_model',[{
-            'population_size': hp.quniform("population_size", 10, 100, 1),
+            #'population_size': hp.quniform("population_size", 50, 60, 1),
             'weight_mutation_lambda': hp.uniform("weight_mutation_lambda", .5, 3),
-            'compat_threshold': hp.uniform("compat_threshold", 2, 15),
+            'compat_threshold': hp.uniform("compat_threshold", 4, 15),
             'link_insertion_lambda': hp.uniform("link_insertion_lambda", 0.05, .5),
             'node_insertion_lambda': hp.uniform("node_insertion_lambda", 0.05, .5),
                 }])

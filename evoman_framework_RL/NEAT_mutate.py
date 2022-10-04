@@ -25,7 +25,7 @@ def adjust_weight(individual):
     network = individual.get_network()
     for i in range(random.randint(1,10)):
         single_connection = random.choice(network)
-        single_connection.weight = random.uniform(-1,1)
+        single_connection.weight = random.uniform(-10,10)
 
     return individual
 

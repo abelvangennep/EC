@@ -47,8 +47,8 @@ def get_all_individuals(species):
 def calc_offsprings(species, pop_size):
     """ Returns array with number of offsprings necessary at species id index"""
     #print([len(species[i]) for i in range(len(species))])
-    print('num individuals: ', len(get_all_individuals(species)))
-    print('Number of specieses: ', len(species))
+    #print('num individuals: ', len(get_all_individuals(species)))
+    #print('Number of specieses: ', len(species))
     pop_mean_fitness = 0
     species_fitness_sum = np.zeros(len(species))
     species_offsprings = np.zeros(len(species))
@@ -77,7 +77,7 @@ def calc_offsprings(species, pop_size):
 
     #Rounding section
     sp_down = np.floor(species_offsprings)
-    print('Population size: ', pop_size)
+    #print('Population size: ', pop_size)
     if np.sum(sp_down) == pop_size:
         return sp_down
     else:
@@ -86,7 +86,7 @@ def calc_offsprings(species, pop_size):
             m = np.argmax(dec)
             sp_down[m]+=1
             dec[m] = 0
-    print('new offsprings to generate: ', sum(sp_down))
+    #print('new offsprings to generate: ', sum(sp_down))
     return sp_down
 
 def fitness_of_list(pop):
@@ -105,7 +105,7 @@ def choose_parents(pa, off):
     return parents
 
 def choose_parents_cross_species(species, offsprings):
-    print('Replacing Individuals: ', offsprings)
+    #print('Replacing Individuals: ', offsprings)
     pop = get_all_individuals(species)
     parents = []
     for _ in range(int(offsprings)):
@@ -120,12 +120,12 @@ def choose_parents_cross_species(species, offsprings):
 def parent_selection(species):
     parents = []
     inds = get_num_individuals(species)
-    print('Individuals parent selection function: ', inds)
+    #print('Individuals parent selection function: ', inds)
         #check if specie will be extinct
     #print('species after pop, ', [len(species[i]) for i in range(len(species))])
     if len(species)>0:
         offsprings = calc_offsprings(species, inds)
-        print('array of offsprings per species: ', offsprings)
+        #print('array of offsprings per species: ', offsprings)
         for s in range(len(species)):
             if offsprings[s] > 0:
                 if (species[s].get_evolve() >= 3) and (highest_pop_score(species) > species[s].get_highest_fitness()):
