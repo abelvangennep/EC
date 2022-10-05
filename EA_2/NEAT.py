@@ -45,6 +45,8 @@ class Connection_Gene():
         return self.innov_id
     def get_weight(self):
         return self.weight
+    def set_weight(self, w):
+        self.weight = w
 
 
 class Individual():
@@ -87,12 +89,36 @@ class Individual():
     def get_species(self):
         return self.species
 
+# def initialize_network():
+#     """ Initialize network with only 20 input nodes and 5 output nodes"""
+#     network = []
+#     for h in range(10):
+#         for j in range(20):
+#             network.append(
+#                 Connection_Gene(Node_Gene('Input', j + 1), Node_Gene('Hidden', 21 + h), random.uniform(-1, 1), 20 * h + j + 1, True))
+#     for i in range(5):
+#         for h in range(10):
+#             network.append(
+#                 Connection_Gene(Node_Gene('Hidden', 21 + h), Node_Gene('Output', 31 + i), random.uniform(-1, 1), 201 + 10 * i + h, True))
+#     return network
+
 def initialize_network():
     """ Initialize network with only 20 input nodes and 5 output nodes"""
     network = []
-    for i in range(5):
+    for h in range(10):
         for j in range(20):
-            network.append(Connection_Gene(Node_Gene('Input',j+1),Node_Gene('Output',21+i), random.uniform(-1,1),20*i+j+1, True))
+            network.append(
+                Connection_Gene(Node_Gene('Input', j + 1), Node_Gene('Hidden', 31 + h), random.uniform(-1, 1), 20 * h + j + 1, True))
+    for b in range(10):
+        network.append(
+            Connection_Gene(Node_Gene('Bias', 21 + b), Node_Gene('Hidden', 31 + b), random.uniform(-1, 1), 201 + b , True))
+    for i in range(5):
+        for h in range(10):
+            network.append(
+                Connection_Gene(Node_Gene('Hidden', 21 + h), Node_Gene('Output', 46 + i), random.uniform(-1, 1), 211 + 10 * i + h, True))
+    for i in range(5):
+        network.append(
+            Connection_Gene(Node_Gene('Bias', 41 + i), Node_Gene('Output', 46 + i), random.uniform(-1, 1), 261+i, True))
     return network
 
 def calc_fitness_value(plife, elife,runtime):
@@ -104,3 +130,9 @@ def calc_fitness_value(plife, elife,runtime):
 #net5 = initialize_network()
 
 #population = [Individual(net1), Individual(net2), Individual(net3), Individual(net4), Individual(net5)]
+# for n in net1:
+#     print('From node: ', n.get_inn().get_type(), ' ', n.get_inn().get_id(), ' to node: ', n.get_out().get_type(), ' ', n.get_out().get_id(), ' with innovation id: ', n.get_innov_id(), ' weight: ', n.get_weight())
+#     if n.get_inn().get_type() == 'Bias':
+#         n.get_inn().set_value(n.get_weight())
+#         n.set_weight(1)
+#         print('Bias value: ', n.get_inn().get_value())

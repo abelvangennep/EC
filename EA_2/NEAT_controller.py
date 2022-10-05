@@ -16,9 +16,11 @@ def get_nn_value(node, ind):
     #get values of the children
     #children = [connect.get_inn() for connect in ind.get_network() if connect.get_out() == node]
     if node.get_type() == 'Input':
-        return sigmoid_activation(node.get_value())
+        return node.get_value()
+    elif node.get_type() == 'Bias':
+        return node.get_value()
     else:
-        return sum(get_nn_value(conn.get_inn(),ind) * conn.get_weight() for conn in ind.get_network() if conn.get_out() == node)
+        return sigmoid_activation(sum(get_nn_value(conn.get_inn(),ind) * conn.get_weight() for conn in ind.get_network() if conn.get_out() == node))
 
 
 # implements controller structure for player
@@ -40,6 +42,10 @@ class player_controller(Controller):
                     output_nodes.append(i.get_out())
             if i.get_inn().get_type() == 'Input':
                 i.get_inn().set_value(inputs[i.get_inn().get_id() - 1])
+            elif i.get_inn().get_type() == 'Bias':
+                #print('From node: ', i.get_inn().get_type(), ' ', i.get_inn().get_id(), ' to node: ', i.get_out().get_type(), ' ', i.get_out().get_id(), ' with weight: ', i.get_weight())
+                i.get_inn().set_value(i.get_weight())
+                i.set_weight(1)
 
         output = []
         for i in output_nodes:
