@@ -41,80 +41,68 @@ n_hidden_neurons = 0
 
 # initializes environment for single objective mode (specialist)  with static enemy and ai player
 env = Environment(experiment_name=experiment_name,
+                  enemies=[7, 8],
+                  multiplemode="yes",
                   playermode="ai",
                   player_controller=player_controller(n_hidden_neurons),
-                  speed="fastest",
                   enemymode="static",
-                  level=2)
+                  level=2,
+                  speed="fastest")
 
 
 highest_species_id = 0
 
 
 def neat_optimizer(list_):
-    number_generations, population_size, weight_mutation_lambda, compat_threshold, link_insertion_lambda, node_insertion_lambda, enemy = list_[0], list_[1], list_[2], list_[3], list_[4], list_[5], list_[6]
+    num_iterations, number_generations, population_size, weight_mutation_lambda, compat_threshold, link_insertion_lambda, node_insertion_lambda = list_[0], list_[1], list_[2], list_[3], list_[4], list_[5], list_[6]
 
-    for en in enemy:
-        overview = np.zeros((number_generations,2))
-        # Update the enemy
-        env.update_parameter('enemies', [en])
-        pop = [Individual(initialize_network(), i) for i in range(population_size)]
-        species = [Species(pop[0], 1)]
-        highest_species_id = 1
-        highest_innov_id = 101
-        id_node = 26
-        best_three_gens = 0
-        for gen in range(number_generations): #number of generations
-            
-            fitnesses = []
-            venemylifes = []
-            for pcont in pop:
-                vfitness, vplayerlife, venemylife, vtime = env.play(pcont)
-                venemylifes.append(venemylife)
-                pcont.set_fitness(calc_fitness_value(vplayerlife, venemylife, vtime)+100) # no negative fitness values
-                fitnesses.append(calc_fitness_value(vplayerlife, venemylife, vtime))
+    overview = np.zeros((number_generations,2))
+    # Write a new initialize_network
+    pop = [Individual(initialize_network(), i) for i in range(population_size)]
+    species = [Species(pop[0], 1)]
+    highest_species_id = 1
+    highest_innov_id = 101
+    id_node = 26
+    best_three_gens = 0
+    for gen in range(number_generations): #number of generations
+        # Get fitness according to original fitness score
+        fitnesses = np.array(list(map(lambda y: env.play(pcont=y)[0], pop)))
 
-            overview[gen,0] = sum(fitnesses)/len(fitnesses)
-            overview[gen,1] = calc_avg_dist(pop)
+        # Return the offspring
+        offspring = crossover(pop) 
+        fitness_offspring = np.array(list(map(lambda y: env.play(pcont=y)[0], offspring)))  # evaluation
+        
+        # Make some selection criterea to find a new population and return there corresponding fitness
+        pop, fitnesses = select_population((pop, fitnesses),(offspring ,fitness_offspring))
+        
+        #evaluate/run for whole new generation and assign fitness value
+        max_score = np.argmax(fitnesses)
+        mean = np.mean(fitnesses)
+        std = np.std(fitnesses)
+        print('gen: ', gen, '   Max fitness: ', max_score, '   mean fitness: ', mean, '   std fitness: ', std)
+        
+        # keep track of solution improves if not do we want to do something????
 
-            pop_grouped, species, highest_species_id = speciation(pop, species, highest_species_id, compat_threshold) #The speciation function takes whole population as list of individuals and returns # a list of lists with individuals [[1,2], [4,5,8], [3,6,9,10], [7]] for example with 10 individuals
-           
-            #add species information to individual
-            parents = parent_selection(pop_grouped) #This function returns pairs of parents which will be mated. In total the number of pairs equal to the number of offsprings we want to generate
-            children = []
-
-            for temp, pair in enumerate(parents):
-                children.append(crossover(pair[0], pair[1])) #for loop needed to cross each pair of parents
-
-            for m in range(len(children)):
-                children[m], id_node, highest_innov_id, string = mutate(children[m], id_node, highest_innov_id,weight_mutation_lambda, link_insertion_lambda, node_insertion_lambda)
-                children[m].set_id(m)
-
-            #evaluate/run for whole new generation and assign fitness value
-            pop = children
-            max_value = max(fitnesses)
-            print('gen: ', gen, '   fitness: ', max_value, "    venemylife:", min(venemylifes))
-            if gen >= number_generations-3:
-                best_three_gens += max_value
+        if gen >= number_generations-num_iterations:
+            best_three_gens += max_score
 
     return best_three_gens/3
 
 
 def neat_iterations_parallel(parameters):
-    num_iterations = 4
+    num_iterations = 3
     number_generations = 10
-    population_size = 60#int(parameters['population_size'])
+    population_size = 60
     weight_mutation_lambda = parameters['weight_mutation_lambda']
     compat_threshold = parameters['compat_threshold']
     link_insertion_lambda = parameters['link_insertion_lambda']
     node_insertion_lambda = parameters['node_insertion_lambda']
-    enemy = [2]
 
     print(parameters)
 
     best_fitnesses = []
     with concurrent.futures.ProcessPoolExecutor() as executor:
-        results = executor.map(neat_optimizer,[[number_generations, population_size, weight_mutation_lambda, compat_threshold,
+        results = executor.map(neat_optimizer,[[num_iterations, number_generations, population_size, weight_mutation_lambda, compat_threshold,
                            link_insertion_lambda, node_insertion_lambda, enemy] for _ in range(num_iterations)])
 
         res = [i for i in results]
