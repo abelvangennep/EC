@@ -52,6 +52,13 @@ env = Environment(experiment_name=experiment_name,
 
 highest_species_id = 0
 
+def simulation(env, p):
+    f, p, e, t = env.play(pcont=p)
+    return [f, p, e, t]
+
+
+def evaluate(x):
+    return simulation(env, x)
 
 def neat_optimizer(list_):
     num_iterations, number_generations, population_size, weight_mutation_lambda, compat_threshold, link_insertion_lambda, node_insertion_lambda = list_[0], list_[1], list_[2], list_[3], list_[4], list_[5], list_[6]
@@ -65,7 +72,15 @@ def neat_optimizer(list_):
     best_three_gens = 0
     for gen in range(number_generations): #number of generations
         # Get fitness according to original fitness score
-        fitnesses = np.array(list(map(lambda y: env.play(pcont=y)[0], pop)))
+        #fitnesses = np.array(list(map(lambda y: env.play(pcont=y)[0], pop)))
+        # Evaluate population
+        with concurrent.futures.ProcessPoolExecutor() as executor:
+            fpet_pop_results = executor.map(evaluate, pop)  # fpet = fitness, player life, enemy life, time
+        fpet_pop = np.array([i for i in fpet_pop_results])
+        # assign fitnesses to inds
+        fitnesses = fpet_pop[:, 0]
+        for i in range(len(pop)):
+            pop[i].set_fitness(fitnesses[i])
 
         solutions = [pop, fitnesses]
         env.update_solutions(solutions)
@@ -110,7 +125,7 @@ def neat_iterations_parallel(parameters):
     best_fitnesses = []
     with concurrent.futures.ProcessPoolExecutor() as executor:
         results = executor.map(neat_optimizer,[[num_iterations, number_generations, population_size, weight_mutation_lambda, compat_threshold,
-                           link_insertion_lambda, node_insertion_lambda, enemy] for _ in range(num_iterations)])
+                           link_insertion_lambda, node_insertion_lambda] for _ in range(num_iterations)])
 
         res = [i for i in results]
 
