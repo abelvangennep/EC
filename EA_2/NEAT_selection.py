@@ -22,10 +22,10 @@ def select_population(pop, offsprings, size):
     for ind in pop:
         choose_pop.append(ind)
     for offspring in offsprings:
-        print(choose_pop)
+        # print(choose_pop)
         choose_pop.append(offspring)
     for i in range(len(pop)):
-        rand_comp = random.sample(choose_pop, size)
+        rand_comp = random.sample(choose_pop, int(size))
         winner = tournament_selection(rand_comp)
         end_pop.append(winner)
         choose_pop.remove(winner)
