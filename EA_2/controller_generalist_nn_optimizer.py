@@ -1,11 +1,7 @@
-#######################################################################################
-# EvoMan FrameWork - V1.0 2016  			                              			  #
-# DEMO : perceptron neural network controller evolved by Genetic Algorithm.        	  #
-#        specialist solutions for each enemy (game)                                   #
-# Author: Karine Miras        			                                      		  #
-# karine.smiras@gmail.com     				                              			  #
-#######################################################################################
-''' This file was used for parameter optimization.'''
+
+"""
+This file was used for parameter optimization.
+"""
 # imports framework
 import os
 import sys
@@ -14,12 +10,11 @@ import matplotlib.pyplot as plt
 
 sys.path.insert(0, 'evoman')
 from environment import Environment
-from NEAT_controller import player_controller
-# from demo_controller import player_controller
-from NEAT import Node_Gene, Connection_Gene, initialize_network, Individual, calc_fitness_value
-from NEAT_selection import select_population
-from NEAT_crossover import crossover
-from NEAT_mutate import mutate
+from NN_EA_controller import player_controller
+from NN_EA import initialize_network, Individual
+from NN_EA_selection import select_population
+from NN_EA_crossover import crossover
+from NN_EA_mutate import mutate
 import numpy as np
 from hyperopt import fmin, tpe, hp, Trials, STATUS_OK
 import concurrent.futures
@@ -119,7 +114,6 @@ def neat_iterations_parallel(parameters):
     num_iterations = 2
     number_generations = 2
     population_size = 6
-    # tournament_size = 4
     mutation_prob = parameters['mutation_prob']
     tournament_size = parameters['tournament_size']
 
