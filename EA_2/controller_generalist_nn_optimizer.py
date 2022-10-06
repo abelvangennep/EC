@@ -17,16 +17,10 @@ from environment import Environment
 from NEAT_controller import player_controller
 # from demo_controller import player_controller
 from NEAT import Node_Gene, Connection_Gene, initialize_network, Individual, calc_fitness_value
-#from NEAT_selection import parent_selection
 from NEAT_selection import select_population
-from NEAT_speciation import speciation, calc_avg_dist, Species
 from NEAT_crossover import crossover
 from NEAT_mutate import mutate
-# imports other libs
 import numpy as np
-import pandas as pd
-import random
-
 from hyperopt import fmin, tpe, hp, Trials, STATUS_OK
 import concurrent.futures
 
@@ -65,9 +59,10 @@ def evaluate(x):
 
 
 def neat_optimizer(list_):
-    num_iterations, number_generations, population_size, tournament_size, mutation_prob = list_[0], list_[1], list_[2], list_[3], list_[4]
+    num_iterations, number_generations, population_size, tournament_size, mutation_prob = list_[0], list_[1], list_[2], \
+                                                                                          list_[3], list_[4]
 
-    overview = np.zeros((number_generations, 2))
+    overview = np.zeros((number_generations, 2))  # (maybe only for final)
     # Write a new initialize_network
     pop = [Individual(initialize_network(), i) for i in range(population_size)]
     best_three_gens = 0
@@ -77,7 +72,6 @@ def neat_optimizer(list_):
         with concurrent.futures.ProcessPoolExecutor() as executor:
             fpet_pop_results = executor.map(evaluate, pop)  # fpet = fitness, player life, enemy life, time
         fpet_pop = np.array([i for i in fpet_pop_results])
-        #print('results evaluation: ', fpet_pop)
         # assign fitnesses to inds
         fitnesses = fpet_pop[:, 0]
         for i in range(len(pop)):
@@ -88,7 +82,6 @@ def neat_optimizer(list_):
         offsprings = []
         for o in offspring:
             offsprings.append(mutate(o, mutation_prob))
-
 
         # Evaluate offsprings
         with concurrent.futures.ProcessPoolExecutor() as executor:
@@ -115,56 +108,51 @@ def neat_optimizer(list_):
     return best_three_gens / 3
 
 
-number_generations = 10
-population_size = 20
-tournament_size = 4
-mutation_prob = 0.2
+# number_generations = 10
+# population_size = 20
 
-if __name__ == '__main__':
-    neat_optimizer([2, number_generations, population_size, tournament_size, mutation_prob])
+
+# if __name__ == '__main__':
+#     neat_optimizer([2, number_generations, population_size, tournament_size, mutation_prob])
 
 def neat_iterations_parallel(parameters):
-    num_iterations = 3
+    num_iterations = 2
     number_generations = 2
     population_size = 6
-    weight_mutation_lambda = parameters['weight_mutation_lambda']
-    compat_threshold = parameters['compat_threshold']
-    link_insertion_lambda = parameters['link_insertion_lambda']
-    node_insertion_lambda = parameters['node_insertion_lambda']
+    # tournament_size = 4
+    mutation_prob = parameters['mutation_prob']
+    tournament_size = parameters['tournament_size']
 
     print(parameters)
 
     best_fitnesses = []
     with concurrent.futures.ProcessPoolExecutor() as executor:
-        results = executor.map(neat_optimizer,[[num_iterations, number_generations, population_size, weight_mutation_lambda, compat_threshold,
-                           link_insertion_lambda, node_insertion_lambda] for _ in range(num_iterations)])
+        results = executor.map(neat_optimizer,
+                               [[num_iterations, number_generations, population_size, tournament_size, mutation_prob]
+                                for _ in range(num_iterations)])
 
         res = [i for i in results]
 
-    dict = {'loss': -np.mean(res),'status': STATUS_OK,'eval_time': time.time(),'loss_variance': np.var(res)}
+    dict = {'loss': -np.mean(res), 'status': STATUS_OK, 'eval_time': time.time(), 'loss_variance': np.var(res)}
     print(dict)
     return -np.mean(res)
 
 
-# if __name__ == '__main__':
-#
-#     space = hp.choice('Type_of_model',[{
-#             #'population_size': hp.quniform("population_size", 10, 100, 1),
-#             'weight_mutation_lambda': hp.uniform("weight_mutation_lambda", .5, 3),
-#             'compat_threshold': hp.uniform("compat_threshold", 4, 15),
-#             'link_insertion_lambda': hp.uniform("link_insertion_lambda", 0.05, .5),
-#             'node_insertion_lambda': hp.uniform("node_insertion_lambda", 0.05, .5),
-#                 }])
-#
-#
-#     trials = Trials()
-#     best = fmin(
-#         neat_iterations_parallel,
-#         space,
-#         trials=trials,
-#         algo=tpe.suggest,
-#         max_evals=50,
-#     )
-#
-#     print("The best combination of hyperparameters is:")
-#     print(best)
+if __name__ == '__main__':
+    space = hp.choice('Type_of_model', [{
+        'mutation_prob': hp.uniform("mutation_prob", .2, .7),
+        'tournament_size': hp.quniform("tournament_size", 2, 5,1),
+
+    }])
+
+    trials = Trials()
+    best = fmin(
+        neat_iterations_parallel,
+        space,
+        trials=trials,
+        algo=tpe.suggest,
+        max_evals=25,
+    )
+
+    print("The best combination of hyperparameters is:")
+    print(best)
