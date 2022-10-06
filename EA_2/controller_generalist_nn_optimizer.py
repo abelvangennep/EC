@@ -17,13 +17,15 @@ from environment import Environment
 from NEAT_controller import player_controller
 # from demo_controller import player_controller
 from NEAT import Node_Gene, Connection_Gene, initialize_network, Individual, calc_fitness_value
-from NEAT_selection import parent_selection
+#from NEAT_selection import parent_selection
+from NEAT_selection import select_population
 from NEAT_speciation import speciation, calc_avg_dist, Species
 from NEAT_crossover import crossover
 from NEAT_mutate import mutate
 # imports other libs
 import numpy as np
 import pandas as pd
+import random
 
 from hyperopt import fmin, tpe, hp, Trials, STATUS_OK
 import concurrent.futures
@@ -66,14 +68,24 @@ def neat_optimizer(list_):
     best_three_gens = 0
     for gen in range(number_generations): #number of generations
         # Get fitness according to original fitness score
+    
         fitnesses = np.array(list(map(lambda y: env.play(pcont=y)[0], pop)))
+        choose_pop = pop
+        offsprings = []
 
         # Return the offspring
-        offspring = crossover(pop) 
-        fitness_offspring = np.array(list(map(lambda y: env.play(pcont=y)[0], offspring)))  # evaluation
+        while choose_pop:
+            rand_ind1 = random.choice(choose_pop)
+            print(rand_ind1)
+            choose_pop.remove(rand_ind1)
+            rand_ind2 = random.choice(choose_pop)
+            choose_pop.remove(rand_ind2)
+            offsprings.append(crossover(rand_ind1, rand_ind2))
+
+        fitness_offsprings = np.array(list(map(lambda y: env.play(pcont=y)[0], offsprings)))  # evaluation
         
         # Make some selection criterea to find a new population and return there corresponding fitness
-        pop, fitnesses = select_population((pop, fitnesses),(offspring ,fitness_offspring))
+        pop, fitnesses = select_population((pop, fitnesses),(offsprings ,fitness_offsprings))
         
         #evaluate/run for whole new generation and assign fitness value
         max_score = np.argmax(fitnesses)
@@ -91,8 +103,8 @@ def neat_optimizer(list_):
 
 def neat_iterations_parallel(parameters):
     num_iterations = 3
-    number_generations = 10
-    population_size = 60
+    number_generations = 2
+    population_size = 6
     weight_mutation_lambda = parameters['weight_mutation_lambda']
     compat_threshold = parameters['compat_threshold']
     link_insertion_lambda = parameters['link_insertion_lambda']
@@ -103,7 +115,7 @@ def neat_iterations_parallel(parameters):
     best_fitnesses = []
     with concurrent.futures.ProcessPoolExecutor() as executor:
         results = executor.map(neat_optimizer,[[num_iterations, number_generations, population_size, weight_mutation_lambda, compat_threshold,
-                           link_insertion_lambda, node_insertion_lambda, enemy] for _ in range(num_iterations)])
+                           link_insertion_lambda, node_insertion_lambda] for _ in range(num_iterations)])
 
         res = [i for i in results]
 
