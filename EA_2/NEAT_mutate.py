@@ -1,23 +1,21 @@
 import random
 import numpy as np
+from NEAT import *
 
 
 def mutate(individual, mutation_prob):
-    for n in individual:
-        r = np.random.uniform(-1,1)
-        if n > mutation_prob:
+    for node in individual.get_network():
+        weight = node.get_weight()
+        if weight > mutation_prob:
             # replace with other random weights
-            n.set_weight(np.random.uniform(-1,1))
+            node.set_weight(np.random.uniform(-1,1))
 
-        if n < mutation_prob:
+        if weight < mutation_prob:
             # add/subtract random values
-            n.set_weight(n.get_weight + r)
+            node.set_weight(weight + np.random.uniform(-1,1))
 
-        if n == mutation_prob:
-            # switch with other weights
-            weight = get_weight()
-            n.set_weight(weight)
-
-
+        if weight == mutation_prob:
+            # keep the weight
+            node.set_weight(weight)
     return individual
 
