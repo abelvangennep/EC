@@ -56,36 +56,24 @@ highest_species_id = 0
 
 
 def neat_optimizer(list_):
-    num_iterations, number_generations, population_size, weight_mutation_lambda, compat_threshold, link_insertion_lambda, node_insertion_lambda = list_[0], list_[1], list_[2], list_[3], list_[4], list_[5], list_[6]
+    num_iterations, number_generations, population_size, tournament_size = list_[0], list_[1], list_[2], list_[3]
 
     overview = np.zeros((number_generations,2))
     # Write a new initialize_network
     pop = [Individual(initialize_network(), i) for i in range(population_size)]
-    species = [Species(pop[0], 1)]
-    highest_species_id = 1
-    highest_innov_id = 101
-    id_node = 26
+
     best_three_gens = 0
     for gen in range(number_generations): #number of generations
         # Get fitness according to original fitness score
     
         fitnesses = np.array(list(map(lambda y: env.play(pcont=y)[0], pop)))
-        choose_pop = pop
-        offsprings = []
-
-        # Return the offspring
-        while choose_pop:
-            rand_ind1 = random.choice(choose_pop)
-            print(rand_ind1)
-            choose_pop.remove(rand_ind1)
-            rand_ind2 = random.choice(choose_pop)
-            choose_pop.remove(rand_ind2)
-            offsprings.append(crossover(rand_ind1, rand_ind2))
-
+        print('fitnesses of generation', gen, ' : ', fitnesses)
+        offsprings = crossover(pop)
+        print('num offsprings generated: ', len(offsprings))
         fitness_offsprings = np.array(list(map(lambda y: env.play(pcont=y)[0], offsprings)))  # evaluation
         
         # Make some selection criterea to find a new population and return there corresponding fitness
-        pop, fitnesses = select_population((pop, fitnesses),(offsprings ,fitness_offsprings))
+        pop, fitnesses = select_population((pop, fitnesses),(offsprings ,fitness_offsprings), tournament_size)
         
         #evaluate/run for whole new generation and assign fitness value
         max_score = np.argmax(fitnesses)
@@ -100,6 +88,13 @@ def neat_optimizer(list_):
 
     return best_three_gens/3
 
+
+number_generations = 10
+population_size = 20
+tournament_size = 4
+enemy = [4]
+if __name__ == '__main__':
+    neat_optimizer([2, number_generations, population_size, tournament_size])
 
 def neat_iterations_parallel(parameters):
     num_iterations = 3
@@ -124,25 +119,25 @@ def neat_iterations_parallel(parameters):
     return -np.mean(res)
 
 
-if __name__ == '__main__':
-
-    space = hp.choice('Type_of_model',[{
-            #'population_size': hp.quniform("population_size", 10, 100, 1),
-            'weight_mutation_lambda': hp.uniform("weight_mutation_lambda", .5, 3),
-            'compat_threshold': hp.uniform("compat_threshold", 4, 15),
-            'link_insertion_lambda': hp.uniform("link_insertion_lambda", 0.05, .5),
-            'node_insertion_lambda': hp.uniform("node_insertion_lambda", 0.05, .5),
-                }])
-
-
-    trials = Trials()
-    best = fmin(
-        neat_iterations_parallel,
-        space,
-        trials=trials,
-        algo=tpe.suggest,
-        max_evals=50,
-    )
-
-    print("The best combination of hyperparameters is:")
-    print(best)
+# if __name__ == '__main__':
+#
+#     space = hp.choice('Type_of_model',[{
+#             #'population_size': hp.quniform("population_size", 10, 100, 1),
+#             'weight_mutation_lambda': hp.uniform("weight_mutation_lambda", .5, 3),
+#             'compat_threshold': hp.uniform("compat_threshold", 4, 15),
+#             'link_insertion_lambda': hp.uniform("link_insertion_lambda", 0.05, .5),
+#             'node_insertion_lambda': hp.uniform("node_insertion_lambda", 0.05, .5),
+#                 }])
+#
+#
+#     trials = Trials()
+#     best = fmin(
+#         neat_iterations_parallel,
+#         space,
+#         trials=trials,
+#         algo=tpe.suggest,
+#         max_evals=50,
+#     )
+#
+#     print("The best combination of hyperparameters is:")
+#     print(best)
