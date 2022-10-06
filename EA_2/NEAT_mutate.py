@@ -15,9 +15,9 @@ def mutate(individual, mutation_prob):
 
         if n == mutation_prob:
             # switch with other weights
+
             weight = get_weight()
             n.set_weight(weight)
-
-
+    id+=1
     return individual
 
