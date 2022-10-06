@@ -65,7 +65,7 @@ def evaluate(x):
 
 
 def neat_optimizer(list_):
-    num_iterations, number_generations, population_size, tournament_size = list_[0], list_[1], list_[2], list_[3]
+    num_iterations, number_generations, population_size, tournament_size, mutation_prob = list_[0], list_[1], list_[2], list_[3], list_[4]
 
     overview = np.zeros((number_generations, 2))
     # Write a new initialize_network
@@ -85,18 +85,22 @@ def neat_optimizer(list_):
 
         # Return the offspring
         offspring = crossover(pop)
+        offsprings = []
+        for o in offspring:
+            offsprings.append(mutate(o, mutation_prob))
+
 
         # Evaluate offsprings
         with concurrent.futures.ProcessPoolExecutor() as executor:
-            fpet_off_results = executor.map(evaluate, offspring)
+            fpet_off_results = executor.map(evaluate, offsprings)
         fpet_off = np.array([i for i in fpet_off_results])
         fitness_offspring = fpet_off[:, 0]
         # assign fitness to offsprings
         for i in range(len(offspring)):
-            offspring[i].set_fitness(fitness_offspring[i])
+            offsprings[i].set_fitness(fitness_offspring[i])
 
         # Make some selection criterea to find a new population and return there corresponding fitness
-        pop, fitnesses = select_population(pop, offspring, tournament_size)
+        pop, fitnesses = select_population(pop, offsprings, tournament_size)
 
         # evaluate/run for whole new generation and assign fitness value
         max_score = np.argmax(fitnesses)
@@ -114,9 +118,10 @@ def neat_optimizer(list_):
 number_generations = 10
 population_size = 20
 tournament_size = 4
-enemy = [4]
+mutation_prob = 0.2
+
 if __name__ == '__main__':
-    neat_optimizer([2, number_generations, population_size, tournament_size])
+    neat_optimizer([2, number_generations, population_size, tournament_size, mutation_prob])
 
 def neat_iterations_parallel(parameters):
     num_iterations = 3
