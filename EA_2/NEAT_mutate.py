@@ -12,10 +12,10 @@ def mutate(individual, mutation_prob):
                 # replace with other random weights
                 node.set_weight(np.random.uniform(-1,1))
             elif a>2/3:
-                node.set_weight(node_get_weight() + np.random.uniform(-1, 1))
+                node.set_weight(node.get_weight() + np.random.uniform(-1, 1))
             else:
                 # switch weights
-                switch = random.randint(0,len(individual.get_network()-1))
+                switch = random.randint(0,len(individual.get_network())-1)
                 temp = individual.get_network()[switch].get_weight()
                 individual.get_network()[switch].set_weight(node.get_weight())
                 node.set_weight(temp)
