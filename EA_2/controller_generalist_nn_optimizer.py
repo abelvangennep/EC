@@ -55,38 +55,60 @@ env = Environment(experiment_name=experiment_name,
 highest_species_id = 0
 
 
+def simulation(env, p):
+    f, p, e, t = env.play(pcont=p)
+    return [f, p, e, t]
+
+
+def evaluate(x):
+    return simulation(env, x)
+
+
 def neat_optimizer(list_):
     num_iterations, number_generations, population_size, tournament_size = list_[0], list_[1], list_[2], list_[3]
 
-    overview = np.zeros((number_generations,2))
+    overview = np.zeros((number_generations, 2))
     # Write a new initialize_network
     pop = [Individual(initialize_network(), i) for i in range(population_size)]
-
     best_three_gens = 0
-    for gen in range(number_generations): #number of generations
-        # Get fitness according to original fitness score
-    
-        fitnesses = np.array(list(map(lambda y: env.play(pcont=y)[0], pop)))
-        print('fitnesses of generation', gen, ' : ', fitnesses)
-        offsprings = crossover(pop)
-        print('num offsprings generated: ', len(offsprings))
-        fitness_offsprings = np.array(list(map(lambda y: env.play(pcont=y)[0], offsprings)))  # evaluation
-        
+    for gen in range(number_generations):  # number of generations
+
+        # Evaluate population
+        with concurrent.futures.ProcessPoolExecutor() as executor:
+            fpet_pop_results = executor.map(evaluate, pop)  # fpet = fitness, player life, enemy life, time
+        fpet_pop = np.array([i for i in fpet_pop_results])
+        #print('results evaluation: ', fpet_pop)
+        # assign fitnesses to inds
+        fitnesses = fpet_pop[:, 0]
+        for i in range(len(pop)):
+            pop[i].set_fitness(fitnesses[i])
+
+        # Return the offspring
+        offspring = crossover(pop)
+
+        # Evaluate offsprings
+        with concurrent.futures.ProcessPoolExecutor() as executor:
+            fpet_off_results = executor.map(evaluate, offspring)
+        fpet_off = np.array([i for i in fpet_off_results])
+        fitness_offspring = fpet_off[:, 0]
+        # assign fitness to offsprings
+        for i in range(len(offspring)):
+            offspring[i].set_fitness(fitness_offspring[i])
+
         # Make some selection criterea to find a new population and return there corresponding fitness
-        pop, fitnesses = select_population((pop, fitnesses),(offsprings ,fitness_offsprings), tournament_size)
-        
-        #evaluate/run for whole new generation and assign fitness value
+        pop, fitnesses = select_population(pop, offspring, tournament_size)
+
+        # evaluate/run for whole new generation and assign fitness value
         max_score = np.argmax(fitnesses)
         mean = np.mean(fitnesses)
         std = np.std(fitnesses)
         print('gen: ', gen, '   Max fitness: ', max_score, '   mean fitness: ', mean, '   std fitness: ', std)
-        
+
         # keep track of solution improves if not do we want to do something????
 
-        if gen >= number_generations-num_iterations:
+        if gen >= number_generations - num_iterations:
             best_three_gens += max_score
-
-    return best_three_gens/3
+    return best_three_gens / 3
 
 
 number_generations = 10
