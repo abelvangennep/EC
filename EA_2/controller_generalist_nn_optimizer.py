@@ -74,7 +74,6 @@ def evaluate(x):
 def neat_optimizer(list_):
     num_iterations, number_generations, population_size, tournament_size, sigma = list_[0], list_[1], list_[2], \
                                                                                           list_[3], list_[4]
-    print("1")
     overview = np.zeros((number_generations, 2))  # (maybe only for final)
     # Write a new initialize_network
     
