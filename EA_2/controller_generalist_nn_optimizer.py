@@ -131,8 +131,8 @@ def neat_optimizer(list_):
 
 
 def neat_iterations_parallel(parameters):
-    num_iterations = 1
-    number_generations = 2
+    num_iterations = 3
+    number_generations = 15
     population_size = 60
     sigma = parameters['sigma']
     tournament_size = parameters['tournament_size']
