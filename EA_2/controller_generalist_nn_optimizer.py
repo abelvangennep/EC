@@ -54,12 +54,12 @@ def evaluate(x):
 
 
 def neat_optimizer(list_):
-    num_iterations, number_generations, population_size, tournament_size, mutation_prob = list_[0], list_[1], list_[2], \
+    num_iterations, number_generations, population_size, tournament_size, sigma = list_[0], list_[1], list_[2], \
                                                                                           list_[3], list_[4]
 
     overview = np.zeros((number_generations, 2))  # (maybe only for final)
     # Write a new initialize_network
-    pop = [Individual(initialize_network(), i) for i in range(population_size)]
+    pop = [Individual(initialize_network(), sigma, i) for i in range(population_size)]
     best_three_gens = 0
     for gen in range(number_generations):  # number of generations
 
@@ -73,10 +73,10 @@ def neat_optimizer(list_):
             pop[i].set_fitness(fitnesses[i])
 
         # Return the offspring
-        offspring = crossover(pop)
+        offsprings_old = crossover(pop)
         offsprings = []
-        for o in offspring:
-            offsprings.append(mutate(o, mutation_prob))
+        for offspring in offsprings_old:
+            offsprings.append(mutate(offspring))
 
         # Evaluate offsprings
         with concurrent.futures.ProcessPoolExecutor() as executor:
@@ -84,7 +84,7 @@ def neat_optimizer(list_):
         fpet_off = np.array([i for i in fpet_off_results])
         fitness_offspring = fpet_off[:, 0]
         # assign fitness to offsprings
-        for i in range(len(offspring)):
+        for i in range(len(offsprings)):
             offsprings[i].set_fitness(fitness_offspring[i])
 
         # Make some selection criterea to find a new population and return there corresponding fitness
@@ -114,7 +114,7 @@ def neat_iterations_parallel(parameters):
     num_iterations = 2
     number_generations = 2
     population_size = 6
-    mutation_prob = parameters['mutation_prob']
+    sigma = parameters['sigma']
     tournament_size = parameters['tournament_size']
 
     print(parameters)
@@ -122,7 +122,7 @@ def neat_iterations_parallel(parameters):
     best_fitnesses = []
     with concurrent.futures.ProcessPoolExecutor() as executor:
         results = executor.map(neat_optimizer,
-                               [[num_iterations, number_generations, population_size, tournament_size, mutation_prob]
+                               [[num_iterations, number_generations, population_size, tournament_size, sigma]
                                 for _ in range(num_iterations)])
 
         res = [i for i in results]
@@ -134,7 +134,7 @@ def neat_iterations_parallel(parameters):
 
 if __name__ == '__main__':
     space = hp.choice('Type_of_model', [{
-        'mutation_prob': hp.uniform("mutation_prob", .2, .7),
+        'sigma': hp.uniform("sigma", .0001, 1),
         'tournament_size': hp.quniform("tournament_size", 2, 5,1),
 
     }])

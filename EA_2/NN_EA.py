@@ -1,6 +1,7 @@
 from pickle import TRUE
 import random
 import math
+import numpy as np
 
 class Node_Gene():
     """ Saves node genes"""
@@ -51,13 +52,15 @@ class Connection_Gene():
 
 
 class Individual():
-    def __init__(self, network, id = None, sp = 0):
+    def __init__(self, network, sigma, id = None, sp = 0):
         """ Initialize individual for the NEAT population"""
         self.network = network
         self.highest_innov = 0
         self.fitness = None
         self.id = id
         self.species = sp
+        self.sigma = sigma
+        self.t = math.sqrt(len(network))
 
     def get_network(self):
         return self.network
@@ -68,6 +71,11 @@ class Individual():
     def set_id(self, id):
         self.id = id
 
+    def set_sigma(self):
+        self.sigma = self.sigma * math.exp(np.random.normal(0, self.t))
+        if self.sigma < 0.0001:
+            self.sigma = 0.0001
+        
     def get_fitness(self):
         return self.fitness
 

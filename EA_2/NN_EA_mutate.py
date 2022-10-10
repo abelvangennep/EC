@@ -20,3 +20,13 @@ def mutate(individual, mutation_prob):
                 individual.get_network()[switch].set_weight(node.get_weight())
                 node.set_weight(temp)
     return individual
+
+
+def mutate(individual):
+    for connection in individual.get_network():
+        connection.set_weight(connection.get_weight() + np.random.normal(0, individual.sigma))
+
+    individual.set_sigma()
+
+    return individual
+  
