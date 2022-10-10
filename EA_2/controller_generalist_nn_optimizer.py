@@ -32,7 +32,7 @@ n_hidden_neurons = 0
 
 # initializes environment for single objective mode (specialist)  with static enemy and ai player
 env = Environment(experiment_name=experiment_name,
-                  enemies=[7, 8],
+                  enemies=[1, 3, 4],
                   multiplemode="yes",
                   playermode="ai",
                   player_controller=player_controller(n_hidden_neurons),
@@ -40,6 +40,12 @@ env = Environment(experiment_name=experiment_name,
                   level=2,
                   speed="fastest")
 
+env2 = Environment(experiment_name=experiment_name,
+                  playermode="ai",
+                  player_controller=player_controller(n_hidden_neurons),
+                  speed="fastest",
+                  enemymode="static",
+                  level=2)
 
 highest_species_id = 0
 
@@ -72,6 +78,16 @@ def neat_optimizer(list_):
         for i in range(len(pop)):
             pop[i].set_fitness(fitnesses[i])
 
+        #find best individual of population
+        best_ind = pop[np.argmax(fitnesses)]
+        enemy_win = []
+        fitness_all_enemies = 0
+        for enem in range(1,9):
+            env2.update_parameter('enemies', [enem])
+            f, p, e, t = env.play(pcont=best_ind)
+            enemy_win.append(p>0)
+            fitness_all_enemies+=f
+
         # Return the offspring
         offspring = crossover(pop)
         offsprings = []
@@ -94,13 +110,11 @@ def neat_optimizer(list_):
         max_score = np.argmax(fitnesses)
         mean = np.mean(fitnesses)
         std = np.std(fitnesses)
-        print('gen: ', gen, '   Max fitness: ', max_score, '   mean fitness: ', mean, '   std fitness: ', std)
+        print('gen: ', gen, '   Max fitness: ', max_score, '   mean fitness: ', mean, '   std fitness: ', std, ' won enemies: ', enemy_win, ' fitness 8 enemies sum: ', fitness_all_enemies)
 
         # keep track of solution improves if not do we want to do something????
 
-        if gen >= number_generations - num_iterations:
-            best_three_gens += max_score
-    return best_three_gens / 3
+    return fitness_all_enemies
 
 
 # number_generations = 10
@@ -135,7 +149,7 @@ def neat_iterations_parallel(parameters):
 if __name__ == '__main__':
     space = hp.choice('Type_of_model', [{
         'mutation_prob': hp.uniform("mutation_prob", .2, .7),
-        'tournament_size': hp.quniform("tournament_size", 2, 5,1),
+        'tournament_size': hp.quniform("tournament_size", 2, 10, 1),
 
     }])
 

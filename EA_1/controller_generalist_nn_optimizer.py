@@ -41,13 +41,20 @@ n_hidden_neurons = 0
 
 # initializes environment for single objective mode (specialist)  with static enemy and ai player
 env = Environment(experiment_name=experiment_name,
-                  enemies=[7, 8],
+                  enemies=[6,7],
                   multiplemode="yes",
                   playermode="ai",
                   player_controller=player_controller(n_hidden_neurons),
                   enemymode="static",
                   level=2,
                   speed="fastest")
+
+env2 = Environment(experiment_name=experiment_name,
+                  playermode="ai",
+                  player_controller=player_controller(n_hidden_neurons),
+                  speed="fastest",
+                  enemymode="static",
+                  level=2)
 
 
 highest_species_id = 0
@@ -82,8 +89,18 @@ def neat_optimizer(list_):
         for i in range(len(pop)):
             pop[i].set_fitness(fitnesses[i])
 
-        solutions = [pop, fitnesses]
-        env.update_solutions(solutions)
+        #find best individual of population
+        best_ind = pop[np.argmax(fitnesses)]
+        enemy_win = []
+        fitness_all_enemies = 0
+        for enem in range(1,9):
+            env2.update_parameter('enemies', [enem])
+            f, p, e, t = env.play(pcont=best_ind)
+            enemy_win.append(p>0)
+            fitness_all_enemies+=f
+
+        #solutions = [pop, fitnesses]
+        #env.update_solutions(solutions)
 
         pop_grouped, species, highest_species_id = speciation(pop, species, highest_species_id, compat_threshold) #The speciation function takes whole population as list of individuals and returns # a list of lists with individuals [[1,2], [4,5,8], [3,6,9,10], [7]] for example with 10 individuals
         
@@ -103,18 +120,15 @@ def neat_optimizer(list_):
         max_score = np.argmax(fitnesses)
         mean = np.mean(fitnesses)
         std = np.std(fitnesses)
-        print('gen: ', gen, '   Max fitness: ', max_score, '   mean fitness: ', mean, '   std fitness: ', std)
-        
-        if gen >= number_generations-num_iterations:
-            best_three_gens += max_score
+        print('gen: ', gen, '   Max fitness: ', max_score, '   mean fitness: ', mean, '   std fitness: ', std, ' won enemies: ', enemy_win, ' fitness 8 enemies sum: ', fitness_all_enemies)
 
-    return best_three_gens/3
+    return fitness_all_enemies
 
 
 def neat_iterations_parallel(parameters):
-    num_iterations = 1
+    num_iterations = 3
     number_generations = 10
-    population_size = 60
+    population_size = 20
     weight_mutation_lambda = parameters['weight_mutation_lambda']
     compat_threshold = parameters['compat_threshold']
     link_insertion_lambda = parameters['link_insertion_lambda']
@@ -151,7 +165,7 @@ if __name__ == '__main__':
         space,
         trials=trials,
         algo=tpe.suggest,
-        max_evals=50,
+        max_evals=20,
     )
 
     print("The best combination of hyperparameters is:")
