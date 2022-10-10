@@ -6,16 +6,28 @@ This file was used for parameter optimization.
 import os
 import sys
 import time
-import matplotlib.pyplot as plt
+class HiddenPrints:
+    def __enter__(self):
+        self._original_stdout = sys.stdout
+        sys.stdout = open(os.devnull, 'w')
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        sys.stdout.close()
+        sys.stdout = self._original_stdout
+
 
 sys.path.insert(0, 'evoman')
-from environment import Environment
+with HiddenPrints():
+    from environment import Environment
+
 from NN_EA_controller import player_controller
 from NN_EA import initialize_network, Individual
 from NN_EA_selection import select_population
 from NN_EA_crossover import crossover
 from NN_EA_mutate import mutate
+
 import numpy as np
+import matplotlib.pyplot as plt
 from hyperopt import fmin, tpe, hp, Trials, STATUS_OK
 import concurrent.futures
 
@@ -62,13 +74,13 @@ def evaluate(x):
 def neat_optimizer(list_):
     num_iterations, number_generations, population_size, tournament_size, sigma = list_[0], list_[1], list_[2], \
                                                                                           list_[3], list_[4]
-
+    print("1")
     overview = np.zeros((number_generations, 2))  # (maybe only for final)
     # Write a new initialize_network
+    
     pop = [Individual(initialize_network(), sigma, i) for i in range(population_size)]
-    best_three_gens = 0
-    for gen in range(number_generations):  # number of generations
 
+    for gen in range(number_generations):  # number of generations
         # Evaluate population
         with concurrent.futures.ProcessPoolExecutor() as executor:
             fpet_pop_results = executor.map(evaluate, pop)  # fpet = fitness, player life, enemy life, time
@@ -99,10 +111,11 @@ def neat_optimizer(list_):
             fpet_off_results = executor.map(evaluate, offsprings)
         fpet_off = np.array([i for i in fpet_off_results])
         fitness_offspring = fpet_off[:, 0]
+
         # assign fitness to offsprings
         for i in range(len(offsprings)):
             offsprings[i].set_fitness(fitness_offspring[i])
-
+        
         # Make some selection criterea to find a new population and return there corresponding fitness
         pop, fitnesses = select_population(pop, offsprings, tournament_size)
 
@@ -117,17 +130,10 @@ def neat_optimizer(list_):
     return fitness_all_enemies
 
 
-# number_generations = 10
-# population_size = 20
-
-
-# if __name__ == '__main__':
-#     neat_optimizer([2, number_generations, population_size, tournament_size, mutation_prob])
-
 def neat_iterations_parallel(parameters):
-    num_iterations = 2
+    num_iterations = 1
     number_generations = 2
-    population_size = 6
+    population_size = 60
     sigma = parameters['sigma']
     tournament_size = parameters['tournament_size']
 
@@ -149,7 +155,7 @@ def neat_iterations_parallel(parameters):
 if __name__ == '__main__':
     space = hp.choice('Type_of_model', [{
         'sigma': hp.uniform("sigma", .0001, 1),
-        'tournament_size': hp.quniform("tournament_size", 2, 10, 1),
+        'tournament_size': hp.quniform("tournament_size", 2, 5, 1),
 
     }])
 

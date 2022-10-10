@@ -11,9 +11,19 @@ import os
 import sys
 import time
 import matplotlib.pyplot as plt
+class HiddenPrints:
+    def __enter__(self):
+        self._original_stdout = sys.stdout
+        sys.stdout = open(os.devnull, 'w')
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        sys.stdout.close()
+        sys.stdout = self._original_stdout
+
 
 sys.path.insert(0, 'evoman')
-from environment import Environment
+with HiddenPrints():
+    from environment import Environment
 from NEAT_controller import player_controller
 # from demo_controller import player_controller
 from NEAT import Node_Gene, Connection_Gene, initialize_network, Individual, calc_fitness_value
