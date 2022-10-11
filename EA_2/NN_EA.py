@@ -60,7 +60,7 @@ class Individual():
         self.id = id
         self.species = sp
         self.sigma = sigma
-        self.t = math.sqrt(len(network))
+        self.t = 1/math.sqrt(len(network))
 
     def get_network(self):
         return self.network

@@ -44,7 +44,7 @@ n_hidden_neurons = 0
 
 # initializes environment for single objective mode (specialist)  with static enemy and ai player
 env = Environment(experiment_name=experiment_name,
-                  enemies=[1, 3, 4],
+                  enemies=[4,8],
                   multiplemode="yes",
                   playermode="ai",
                   player_controller=player_controller(n_hidden_neurons),
@@ -131,7 +131,7 @@ def neat_optimizer(list_):
 
 def neat_iterations_parallel(parameters):
     num_iterations = 3
-    number_generations = 15
+    number_generations = 10
     population_size = 60
     sigma = parameters['sigma']
     tournament_size = parameters['tournament_size']
