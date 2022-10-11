@@ -4,10 +4,10 @@ import numpy as np
 import math
 
 
-def crossover(pop):
-    offsprings = np.zeros((60, 266))
-    for i in range(60):
-        num = random.sample(range(60), 2)
+def crossover(pop, population_size):
+    offsprings = np.zeros((population_size, 266))
+    for i in range(population_size):
+        num = random.sample(range(population_size), 2)
 
         a = np.random.uniform(0, 1, len(pop[num[0]]))
         offspring = pop[num[0]] * a  + (1 - a) * pop[num[1]]

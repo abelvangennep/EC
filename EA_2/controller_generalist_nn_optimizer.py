@@ -100,7 +100,8 @@ def neat_optimizer(list_):
             fitness_all_enemies+=f
 
         # Return the offspring
-        new_pop = crossover(pop)
+        new_pop = crossover(pop, population_size)
+        
 
         # Evaluate offsprings
         fpet_new = evaluate(new_pop[:,0:265])
@@ -109,8 +110,10 @@ def neat_optimizer(list_):
         
         # Make some selection criterea to find a new population and return there corresponding fitness
         pop, fitnesses = select_population(new_pop, fitness_new, tournament_size, population_size)
+
         #  check if variation is below treshold
         pop[pop[:,265] < sigma, 265] = 0.0001
+
 
         # evaluate/run for whole new generation and assign fitness value
         max_score = np.max(fitnesses)
@@ -124,7 +127,7 @@ def neat_optimizer(list_):
 
 
 def neat_iterations_parallel(parameters):
-    num_iterations = 3
+    num_iterations = 1
     number_generations = 20
     population_size = 100
     sigma = parameters['sigma']
