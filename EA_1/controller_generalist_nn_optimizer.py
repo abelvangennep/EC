@@ -51,7 +51,7 @@ n_hidden_neurons = 0
 
 # initializes environment for single objective mode (specialist)  with static enemy and ai player
 env = Environment(experiment_name=experiment_name,
-                  enemies=[6,7],
+                  enemies=[7,8],
                   multiplemode="yes",
                   playermode="ai",
                   player_controller=player_controller(n_hidden_neurons),
@@ -105,8 +105,8 @@ def neat_optimizer(list_):
         fitness_all_enemies = 0
         for enem in range(1,9):
             env2.update_parameter('enemies', [enem])
-            f, p, e, t = env.play(pcont=best_ind)
-            enemy_win.append(p>0)
+            f, p, e, t = env2.play(pcont=best_ind)
+            enemy_win.append(e==0)
             fitness_all_enemies+=f
 
         #solutions = [pop, fitnesses]
@@ -127,12 +127,12 @@ def neat_optimizer(list_):
 
         #evaluate/run for whole new generation and assign fitness value
         pop = children
-        max_score = np.argmax(fitnesses)
+        max_score = np.max(fitnesses)
         mean = np.mean(fitnesses)
         std = np.std(fitnesses)
         print('gen: ', gen, '   Max fitness: ', max_score, '   mean fitness: ', mean, '   std fitness: ', std, ' won enemies: ', enemy_win, ' fitness 8 enemies sum: ', fitness_all_enemies)
 
-    return fitness_all_enemies
+    return fitness_all_enemies/8
 
 
 def neat_iterations_parallel(parameters):
