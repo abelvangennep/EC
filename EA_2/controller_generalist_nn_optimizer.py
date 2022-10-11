@@ -95,14 +95,13 @@ def neat_optimizer(list_):
         fitness_all_enemies = 0
         for enem in range(1,9):
             env2.update_parameter('enemies', [enem])
-            f, p, e, t = env.play(pcont=best_ind[0:265])
+            f, p, e, t = env2.play(pcont=best_ind[0:265])
             enemy_win.append(p>0)
             fitness_all_enemies+=f
 
         # Return the offspring
         new_pop = crossover(pop, population_size)
         
-
         # Evaluate offsprings
         fpet_new = evaluate(new_pop[:,0:265])
   
@@ -127,8 +126,8 @@ def neat_optimizer(list_):
 
 
 def neat_iterations_parallel(parameters):
-    num_iterations = 1
-    number_generations = 20
+    num_iterations = 3
+    number_generations = 10
     population_size = 100
     sigma = parameters['sigma']
     tournament_size = int(parameters['tournament_size'])
