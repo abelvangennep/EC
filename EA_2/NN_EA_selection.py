@@ -5,7 +5,7 @@ import numpy as np
 
 
 def select_population(old_pop, old_fitness, tournament_size, population_size):
-    new_pop = np.zeros((60, 266))
+    new_pop = np.zeros((population_size, 266))
     fitnesses = []
     for i in range(population_size):
         rand_comp = random.sample(range(tournament_size), int(tournament_size))
@@ -21,7 +21,7 @@ def select_population(old_pop, old_fitness, tournament_size, population_size):
         new_pop[i] = winner
         old_pop = np.delete(new_pop, winner_id, 0)
         old_fitness = np.delete(old_fitness, winner_id, 0)
-
+    
     return new_pop, fitnesses
 
 

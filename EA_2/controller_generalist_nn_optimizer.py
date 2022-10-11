@@ -78,7 +78,7 @@ def neat_optimizer(list_):
     # Write a new initialize_network
     
     pop = np.random.uniform(-1, 1, (population_size,265))
-    new_column = np.full(shape=(60,1), fill_value=sigma,dtype=np.float)
+    new_column = np.full(shape=(population_size,1), fill_value=sigma,dtype=np.float)
     
     pop = np.append(pop, new_column, axis=1)
 
@@ -109,9 +109,11 @@ def neat_optimizer(list_):
         
         # Make some selection criterea to find a new population and return there corresponding fitness
         pop, fitnesses = select_population(new_pop, fitness_new, tournament_size, population_size)
+        #  check if variation is below treshold
+        pop[pop[:,265] < sigma, 265] = 0.0001
 
         # evaluate/run for whole new generation and assign fitness value
-        max_score = np.argmax(fitnesses)
+        max_score = np.max(fitnesses)
         mean = np.mean(fitnesses)
         std = np.std(fitnesses)
         print('gen: ', gen, '   Max fitness: ', max_score, '   mean fitness: ', mean, '   std fitness: ', std, ' won enemies: ', enemy_win, ' fitness 8 enemies sum: ', fitness_all_enemies)
@@ -123,8 +125,8 @@ def neat_optimizer(list_):
 
 def neat_iterations_parallel(parameters):
     num_iterations = 3
-    number_generations = 10
-    population_size = 60
+    number_generations = 20
+    population_size = 100
     sigma = parameters['sigma']
     tournament_size = int(parameters['tournament_size'])
 
@@ -145,7 +147,7 @@ def neat_iterations_parallel(parameters):
 
 if __name__ == '__main__':
     space = hp.choice('Type_of_model', [{
-        'sigma': hp.uniform("sigma", .0001, 1),
+        'sigma': hp.choice("sigma", [1,.5,.1,.05,.01,.005,.001,.0005]),
         'tournament_size': hp.quniform("tournament_size", 2, 5, 1),
 
     }])
