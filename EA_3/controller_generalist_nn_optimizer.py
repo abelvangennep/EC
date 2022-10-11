@@ -20,8 +20,8 @@ sys.path.insert(0, 'evoman')
 with HiddenPrints():
     from environment import Environment
 
-from NN_EA_controller import player_controller
-from NN_EA import initialize_network, Individual
+from demo_controller import player_controller
+from NN_EA import Individual
 from NN_EA_selection import select_population
 from NN_EA_crossover import crossover
 from NN_EA_mutate import mutate
@@ -40,7 +40,7 @@ if not os.path.exists(experiment_name):
     os.makedirs(experiment_name)
 
 # Update the number of neurons for this specific example
-n_hidden_neurons = 0
+n_hidden_neurons = 10
 
 # initializes environment for single objective mode (specialist)  with static enemy and ai player
 env = Environment(experiment_name=experiment_name,
@@ -64,59 +64,51 @@ highest_species_id = 0
 
 def simulation(env, p):
     f, p, e, t = env.play(pcont=p)
+
     return [f, p, e, t]
 
 
 def evaluate(x):
-    return simulation(env, x)
+    return np.array(list(map(lambda y: simulation(env, y), x)))
 
 
 def neat_optimizer(list_):
     num_iterations, number_generations, population_size, tournament_size, sigma = list_[0], list_[1], list_[2], \
                                                                                           list_[3], list_[4]
-    overview = np.zeros((number_generations, 2))  # (maybe only for final)
     # Write a new initialize_network
     
-    pop = [Individual(initialize_network(), sigma, i) for i in range(population_size)]
+    pop = np.random.uniform(-1, 1, (population_size,265))
+    new_column = np.full(shape=(60,1), fill_value=sigma,dtype=np.float)
+    
+    pop = np.append(pop, new_column, axis=1)
+
 
     for gen in range(number_generations):  # number of generations
         # Evaluate population
-        with concurrent.futures.ProcessPoolExecutor() as executor:
-            fpet_pop_results = executor.map(evaluate, pop)  # fpet = fitness, player life, enemy life, time
-        fpet_pop = np.array([i for i in fpet_pop_results])
+        fpet_pop = evaluate(pop[:,0:265])  # fpet = fitness, player life, enemy life, time
         # assign fitnesses to inds
         fitnesses = fpet_pop[:, 0]
-        for i in range(len(pop)):
-            pop[i].set_fitness(fitnesses[i])
 
-        #find best individual of population
+        # find best individual of population
         best_ind = pop[np.argmax(fitnesses)]
         enemy_win = []
         fitness_all_enemies = 0
         for enem in range(1,9):
             env2.update_parameter('enemies', [enem])
-            f, p, e, t = env.play(pcont=best_ind)
+            f, p, e, t = env.play(pcont=best_ind[0:265])
             enemy_win.append(p>0)
             fitness_all_enemies+=f
 
         # Return the offspring
-        offsprings_old = crossover(pop)
-        offsprings = []
-        for offspring in offsprings_old:
-            offsprings.append(mutate(offspring))
+        new_pop = crossover(pop)
 
         # Evaluate offsprings
-        with concurrent.futures.ProcessPoolExecutor() as executor:
-            fpet_off_results = executor.map(evaluate, offsprings)
-        fpet_off = np.array([i for i in fpet_off_results])
-        fitness_offspring = fpet_off[:, 0]
-
-        # assign fitness to offsprings
-        for i in range(len(offsprings)):
-            offsprings[i].set_fitness(fitness_offspring[i])
+        fpet_new = evaluate(new_pop[:,0:265])
+  
+        fitness_new = fpet_new[:, 0]
         
         # Make some selection criterea to find a new population and return there corresponding fitness
-        pop, fitnesses = select_population(pop, offsprings, tournament_size)
+        pop, fitnesses = select_population(new_pop, fitness_new, tournament_size, population_size)
 
         # evaluate/run for whole new generation and assign fitness value
         max_score = np.argmax(fitnesses)
@@ -134,7 +126,7 @@ def neat_iterations_parallel(parameters):
     number_generations = 10
     population_size = 60
     sigma = parameters['sigma']
-    tournament_size = parameters['tournament_size']
+    tournament_size = int(parameters['tournament_size'])
 
     print(parameters)
 
