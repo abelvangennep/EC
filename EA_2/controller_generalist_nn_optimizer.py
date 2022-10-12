@@ -43,7 +43,7 @@ n_hidden_neurons = 10
 
 # initializes environment for single objective mode (specialist)  with static enemy and ai player
 env = Environment(experiment_name=experiment_name,
-                  enemies=[1,2,3,4,5,6,7,8],
+                  enemies=[2,6],
                   multiplemode="yes",
                   playermode="ai",
                   player_controller=player_controller(n_hidden_neurons),
@@ -146,7 +146,7 @@ def neat_iterations_parallel(parameters):
 
 if __name__ == '__main__':
     space = hp.choice('Type_of_model', [{
-        'sigma': hp.choice("sigma", [.1,.05,.01]),
+        'sigma': hp.choice("sigma", [0.5, .1,.05,.01,.005,.001]),
         'tournament_size': hp.quniform("tournament_size", 2, 5, 1),
 
     }])
