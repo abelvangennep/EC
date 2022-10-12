@@ -7,7 +7,14 @@
 #######################################################################################
 
 ''' This file is used to generate the final data for the plots in the assignment'''
+class HiddenPrints:
+    def __enter__(self):
+        self._original_stdout = sys.stdout
+        sys.stdout = open(os.devnull, 'w')
 
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        sys.stdout.close()
+        sys.stdout = self._original_stdout
 # imports framework
 import os
 import sys
@@ -15,7 +22,8 @@ import time
 import matplotlib.pyplot as plt
 
 sys.path.insert(0, 'evoman')
-from environment import Environment
+with HiddenPrints():
+    from environment import Environment
 from NEAT_controller import player_controller
 # from demo_controller import player_controller
 from NEAT import Node_Gene, Connection_Gene, initialize_network, Individual, calc_fitness_value
@@ -50,6 +58,13 @@ env = Environment(experiment_name=experiment_name,
                   enemymode="static",
                   level=2,
                   speed="fastest")
+
+env2 = Environment(experiment_name=experiment_name,
+                  playermode="ai",
+                  player_controller=player_controller(n_hidden_neurons),
+                  speed="fastest",
+                  enemymode="static",
+                  level=2)
 def simulation(env, p):
     f, p, e, t = env.play(pcont=p)
     return [f, p, e, t]
@@ -77,7 +92,7 @@ def run_neat(list_):
     highest_species_id = 1
     highest_innov_id = 101
     id_node = 26
-    best_inviduals = []
+    best_individuals = []
 
     for gen in range(number_generations): #number of generations
         start_gen = time.time()
@@ -91,13 +106,24 @@ def run_neat(list_):
         for i in range(len(pop)):
             pop[i].set_fitness(fitnesses[i]+100)
 
+        #find best individual of population
+        best_ind = pop[np.argmax(fitnesses)]
+        best_individuals.append(best_ind)
+        enemy_win = []
+        fitness_all_enemies = 0
+        for enem in range(1,9):
+            env2.update_parameter('enemies', [enem])
+            f, p, e, t = env2.play(pcont=best_ind)
+            enemy_win.append(e==0)
+            fitness_all_enemies+=f
+
         #Store average and maximal fitness of generation
         overview[gen,0] = sum(fitnesses)/len(fitnesses)
         overview[gen,1] = max(fitnesses)
 
         #find best individual of generation
-        good_individual = pop[fitnesses.index(max(fitnesses))]
-        best_inviduals.append((max(fitnesses),good_individual))
+        #good_individual = pop[fitnesses.index(max(fitnesses))]
+        #best_inviduals.append(good_individual)
 
         pop_grouped, species, highest_species_id = speciation(pop, species, highest_species_id, compat_threshold)#The speciation function takes whole population as list of individuals and returns # a list of lists with individuals [[1,2], [4,5,8], [3,6,9,10], [7]] for example with 10 individuals
         parents = parent_selection(pop_grouped) #This function returns pairs of parents which will be mated. In total the number of pairs equal to the number of offsprings we want to generate
@@ -112,12 +138,19 @@ def run_neat(list_):
 
         #evaluate/run for whole new generation and assign fitness value
         pop = children
-        print('Generation ', gen, ' took ', time.time()-start_gen, ' seconds to elapse. Highest fitness value was ', max(fitnesses), 'lowest enemy life: ',min(enemy_life) )
+        print('Generation ', gen, ' took ', time.time()-start_gen, ' seconds to elapse. Highest fitness value was ', max(fitnesses), ' won enemies: ', enemy_win, ' fitness 8 enemies sum: ', fitness_all_enemies)
 
-    best_fitness = max(best_inviduals,key=lambda item:item[0])
-    vfitness, vplayerlife, venemylife, vtime = env.play(best_fitness[1])
-    best_ind_gain = vplayerlife-venemylife
-    return overview, best_ind_gain
+    best_fitnesses = [ind.get_fitness() for ind in best_individuals]
+    best_ind = best_individuals[best_fitnesses.index(max(best_fitnesses))]
+    ind_gains = []
+    for enem in range(1, 9):
+        env2.update_parameter('enemies', [enem])
+        f, p, e, t = env2.play(pcont=best_ind)
+        ind_gains.append(p-e)
+        #enemy_win.append(e == 0)
+        #fitness_all_enemies += f
+
+    return overview, sum(ind_gains)/8, ind_gains
 
 #10 independent runs for each EA and each training group
 
@@ -125,6 +158,7 @@ def final_experiment_data(runs = 10, number_generations = 20, population_size = 
     "Writes the best outcomes to a seperate csv-file"
     plot_max_fit = np.zeros((number_generations,runs))
     plot_mean_fit = np.zeros((number_generations,runs))
+    best_ind_gains = np.zeros((8,runs))
     scores_of_best_individuals = []
     for i in range(int(runs/2)):
         with concurrent.futures.ProcessPoolExecutor() as executor:
@@ -137,9 +171,12 @@ def final_experiment_data(runs = 10, number_generations = 20, population_size = 
         for index, new_cols in enumerate(results):
             overview = new_cols[0]
             best_ind_gain= new_cols[1]
+            ind_gains = new_cols[2]
             scores_of_best_individuals.append(best_ind_gain)
             plot_mean_fit[:,i*2+index] = overview[:,0]
             plot_max_fit[:,i*2+index] = overview[:,1]
+            best_ind_gains[:,i*2+index] = ind_gains
+
 
     print(scores_of_best_individuals)
     df_boxplot = pd.DataFrame(scores_of_best_individuals)
@@ -152,6 +189,9 @@ def final_experiment_data(runs = 10, number_generations = 20, population_size = 
     df_mean_fit = pd.DataFrame(plot_mean_fit)
     df_mean_fit.to_csv('mean_fitness_EA1'+str(runs)+'runs_enemy_group'+str(enemies[0])+'.csv', index_label=None)
 
+    df_ind_gains = pd.DataFrame(best_ind_gains)
+    df_ind_gains.to_csv('best_individual_gains_EA1'+str(runs)+'runs_enemy_group'+str(enemies[0])+'.csv', index_label=None)
 if __name__ == '__main__':
-    final_experiment_data(runs = 2, number_generations = 10, population_size = 20, compat_threshold = 8.9, weight_mutation_lambda = 2.4, link_insertion_lambda=0.22, node_insertion_lambda=.49, enemies = [1,3,4]) #runs has to be even number
-
+    start_all = time.time()
+    final_experiment_data(runs = 2, number_generations = 10, population_size = 20, compat_threshold = 6.1, weight_mutation_lambda = 1.3, link_insertion_lambda=0.20, node_insertion_lambda=.21, enemies = [1,3,4]) #runs has to be even number
+    print('Time elapsed: ', time.time()-start_all)
