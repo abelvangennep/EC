@@ -21,7 +21,6 @@ with HiddenPrints():
     from environment import Environment
 
 from demo_controller import player_controller
-from NN_EA import Individual
 from NN_EA_selection import select_population
 from NN_EA_crossover import crossover
 from NN_EA_mutate import mutate
@@ -44,7 +43,7 @@ n_hidden_neurons = 10
 
 # initializes environment for single objective mode (specialist)  with static enemy and ai player
 env = Environment(experiment_name=experiment_name,
-                  enemies=[7,8],
+                  enemies=[1,2,3,4,5,6,7,8],
                   multiplemode="yes",
                   playermode="ai",
                   player_controller=player_controller(n_hidden_neurons),
@@ -104,7 +103,6 @@ def neat_optimizer(list_):
         
         # Evaluate offsprings
         fpet_new = evaluate(new_pop[:,0:265])
-  
         fitness_new = fpet_new[:, 0]
         
         # Make some selection criterea to find a new population and return there corresponding fitness
@@ -112,7 +110,6 @@ def neat_optimizer(list_):
 
         #  check if variation is below treshold
         pop[pop[:,265] < sigma, 265] = 0.0001
-
 
         # evaluate/run for whole new generation and assign fitness value
         max_score = np.max(fitnesses)
@@ -127,8 +124,8 @@ def neat_optimizer(list_):
 
 def neat_iterations_parallel(parameters):
     num_iterations = 3
-    number_generations = 10
-    population_size = 100
+    number_generations = 20
+    population_size = 60
     sigma = parameters['sigma']
     tournament_size = int(parameters['tournament_size'])
 
@@ -149,7 +146,7 @@ def neat_iterations_parallel(parameters):
 
 if __name__ == '__main__':
     space = hp.choice('Type_of_model', [{
-        'sigma': hp.choice("sigma", [1,.5,.1,.05,.01,.005,.001,.0005]),
+        'sigma': hp.choice("sigma", [.1,.05,.01]),
         'tournament_size': hp.quniform("tournament_size", 2, 5, 1),
 
     }])
