@@ -51,7 +51,7 @@ n_hidden_neurons = 0
 
 # initializes environment for single objective mode (specialist)  with static enemy and ai player
 env = Environment(experiment_name=experiment_name,
-                  enemies=[4,7],
+                  enemies=[2,5,8],
                   multiplemode="yes",
                   playermode="ai",
                   player_controller=player_controller(n_hidden_neurons),
@@ -175,7 +175,7 @@ if __name__ == '__main__':
         space,
         trials=trials,
         algo=tpe.suggest,
-        max_evals=20,
+        max_evals=25,
     )
 
     print("The best combination of hyperparameters is:")

@@ -193,5 +193,5 @@ def final_experiment_data(runs = 10, number_generations = 20, population_size = 
     df_ind_gains.to_csv('best_individual_gains_EA1'+str(runs)+'runs_enemy_group'+str(enemies[0])+'.csv', index_label=None)
 if __name__ == '__main__':
     start_all = time.time()
-    final_experiment_data(runs = 2, number_generations = 10, population_size = 20, compat_threshold = 6.1, weight_mutation_lambda = 1.3, link_insertion_lambda=0.20, node_insertion_lambda=.21, enemies = [1,3,4]) #runs has to be even number
+    final_experiment_data(runs = 10, number_generations = 20, population_size = 60, compat_threshold = 14.46, weight_mutation_lambda = 1.33, link_insertion_lambda=0.48, node_insertion_lambda=.38, enemies = [2,5,8]) #runs has to be even number
     print('Time elapsed: ', time.time()-start_all)

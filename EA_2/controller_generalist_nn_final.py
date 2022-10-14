@@ -51,7 +51,7 @@ if not os.path.exists(experiment_name):
 
 # Update the number of neurons for this specific example
 n_hidden_neurons = 10
-enemies = [1,2,3]
+enemies = [2,5,8]
 
 # initializes environment for single objective mode (specialist)  with static enemy and ai player
 # initializes environment for single objective mode (specialist)  with static enemy and ai player

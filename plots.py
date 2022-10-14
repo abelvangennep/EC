@@ -82,8 +82,12 @@ def boxplot(boxplot_EA1, boxplot_EA2):
     EA2 = np.loadtxt(boxplot_EA2, delimiter = ',', skiprows = 1)[:,1:]
     EA1 = [EA1[i, 0] for i in range(len(EA1))]
     EA2 = [EA2[i, 0] for i in range(len(EA2))]
-    data = [EA1, EA2]
-    df = pd.DataFrame(data, columns=['EA 1', 'EA 2'])
+    data = {'EA 1': EA1,
+            'EA 2': EA2}
+    #data = [EA1, EA2]
+    df = pd.DataFrame(data)
+    #df = pd.DataFrame(data, columns=['EA1', 'EA2'])
+
 
     fig = plt.figure(figsize =(10, 7))
     plt.boxplot(df)
@@ -93,5 +97,5 @@ def boxplot(boxplot_EA1, boxplot_EA2):
     return plt.show()
 
 if __name__ == '__main__':
-   boxplot('NEAT_1/boxplot_NEAT12runs_enemy4.csv', 'NEAT_2/boxplot_NEAT22runs_enemy4.csv')
-   # lineplot('mean_fitness_10runs_enemy4.csv', 'max_fitness_10runs_enemy4.csv', mean_neat2.csv, max_neat2.csv)
+   boxplot('EA_1/boxplot_NEAT110runs_enemy_group2.csv', 'EA_2/boxplot_EA210runs_enemy2.csv')
+   #lineplot('EA_1/mean_fitness_EA110runs_enemy_group2.csv', 'EA_1/max_fitness_EA110runs_enemy_group2.csv', 'EA_2/mean_fitness_EA210runs_enemy2.csv', 'EA_2/max_fitness_EA210runs_enemy2.csv')
